@@ -1,0 +1,85 @@
+{
+  "metadata": {
+    "title": "Sana — Heal, remember, recover.",
+    "description": "A calm, bilingual companion that helps you track your injury, your bills, and your case after an accident."
+  },
+  "common": {
+    "appName": "Sana",
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "signOut": "Sign out",
+    "continue": "Continue",
+    "back": "Back",
+    "finish": "Finish",
+    "loading": "Loading…",
+    "languageEn": "English",
+    "languageEs": "Español"
+  },
+  "landing": {
+    "heroTitle": "You got hurt. Sana helps you heal — and remember everything.",
+    "heroSubtitle": "Track your injury, your bills, and your case — in your language.",
+    "cta": "Get started — it's free",
+    "features": {
+      "documentTitle": "Document everything",
+      "documentBody": "Photos, bills, reports — kept in one place, organized for you.",
+      "recoveryTitle": "Track your recovery",
+      "recoveryBody": "A simple daily check-in for pain, sleep, and how you feel.",
+      "caseTitle": "Know what's happening with your case",
+      "caseBody": "See where your claim stands, in plain language."
+    }
+  },
+  "auth": {
+    "signInTitle": "Welcome back",
+    "signInSubtitle": "Sign in to continue your recovery.",
+    "signUpTitle": "Create your account",
+    "signUpSubtitle": "It only takes a minute.",
+    "email": "Email",
+    "password": "Password",
+    "fullName": "Full name",
+    "preferredLanguage": "Preferred language",
+    "noAccount": "New here?",
+    "hasAccount": "Already have an account?",
+    "submitSignIn": "Sign in",
+    "submitSignUp": "Create account",
+    "errorGeneric": "Something went wrong. Please try again.",
+    "errorInvalidCredentials": "Email or password is incorrect."
+  },
+  "onboarding": {
+    "title": "Let's get you set up",
+    "step": "Step {current} of {total}",
+    "step1": {
+      "title": "When did the accident happen?",
+      "dateLabel": "Date of accident",
+      "typeLabel": "What kind of accident was it?",
+      "typeCar": "Car accident",
+      "typeSlip": "Slip & fall",
+      "typeOther": "Something else",
+      "descriptionLabel": "A short description (optional)"
+    },
+    "step2": {
+      "title": "How are you feeling right now?",
+      "painLabel": "Pain level (1–10)",
+      "notesLabel": "Anything you want to write down?",
+      "notesPlaceholder": "Where it hurts, what helps, how you slept…"
+    },
+    "step3": {
+      "title": "Do you already have a lawyer?",
+      "yes": "Yes",
+      "notYet": "Not yet",
+      "notSure": "Not sure",
+      "firmLabel": "Firm name (optional)"
+    },
+    "submit": "Finish setup"
+  },
+  "dashboard": {
+    "greeting": "Hi {firstName}, how are you feeling today?",
+    "journalTitle": "Your Journal",
+    "documentsTitle": "Your Documents",
+    "caseTitle": "Your Case Status",
+    "comingSoon": "Coming soon"
+  },
+  "footer": {
+    "tagline": "Sana — heal, remember, recover.",
+    "copyright": "© {year} Sana"
+  }
+}

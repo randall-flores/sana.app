@@ -1,0 +1,85 @@
+{
+  "metadata": {
+    "title": "Sana — Sana, recuerda, recupérate.",
+    "description": "Una compañera tranquila y bilingüe que te ayuda a registrar tu lesión, tus cuentas y tu caso después de un accidente."
+  },
+  "common": {
+    "appName": "Sana",
+    "signIn": "Iniciar sesión",
+    "signUp": "Crear cuenta",
+    "signOut": "Cerrar sesión",
+    "continue": "Continuar",
+    "back": "Atrás",
+    "finish": "Terminar",
+    "loading": "Cargando…",
+    "languageEn": "English",
+    "languageEs": "Español"
+  },
+  "landing": {
+    "heroTitle": "Tuviste un accidente. Sana te acompaña mientras te recuperas.",
+    "heroSubtitle": "Registra tu lesión, tus cuentas y tu caso — en tu idioma.",
+    "cta": "Comenzar — es gratis",
+    "features": {
+      "documentTitle": "Documenta todo",
+      "documentBody": "Fotos, cuentas, reportes — todo en un solo lugar, organizado para ti.",
+      "recoveryTitle": "Sigue tu recuperación",
+      "recoveryBody": "Un chequeo diario sencillo: dolor, sueño y cómo te sientes.",
+      "caseTitle": "Sabe qué pasa con tu caso",
+      "caseBody": "Mira dónde va tu reclamo, en palabras claras."
+    }
+  },
+  "auth": {
+    "signInTitle": "Bienvenido de vuelta",
+    "signInSubtitle": "Inicia sesión para continuar tu recuperación.",
+    "signUpTitle": "Crea tu cuenta",
+    "signUpSubtitle": "Solo toma un minuto.",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "fullName": "Nombre completo",
+    "preferredLanguage": "Idioma preferido",
+    "noAccount": "¿Eres nuevo?",
+    "hasAccount": "¿Ya tienes cuenta?",
+    "submitSignIn": "Iniciar sesión",
+    "submitSignUp": "Crear cuenta",
+    "errorGeneric": "Algo salió mal. Por favor intenta de nuevo.",
+    "errorInvalidCredentials": "El correo o la contraseña no son correctos."
+  },
+  "onboarding": {
+    "title": "Vamos a configurarte",
+    "step": "Paso {current} de {total}",
+    "step1": {
+      "title": "¿Cuándo fue el accidente?",
+      "dateLabel": "Fecha del accidente",
+      "typeLabel": "¿Qué tipo de accidente fue?",
+      "typeCar": "Accidente de auto",
+      "typeSlip": "Resbalón o caída",
+      "typeOther": "Otra cosa",
+      "descriptionLabel": "Una descripción breve (opcional)"
+    },
+    "step2": {
+      "title": "¿Cómo te sientes ahora?",
+      "painLabel": "Nivel de dolor (1–10)",
+      "notesLabel": "¿Algo que quieras anotar?",
+      "notesPlaceholder": "Dónde te duele, qué te ayuda, cómo dormiste…"
+    },
+    "step3": {
+      "title": "¿Ya tienes abogado?",
+      "yes": "Sí",
+      "notYet": "Todavía no",
+      "notSure": "No estoy seguro",
+      "firmLabel": "Nombre del bufete (opcional)"
+    },
+    "submit": "Terminar configuración"
+  },
+  "dashboard": {
+    "greeting": "Hola {firstName}, ¿cómo te sientes hoy?",
+    "journalTitle": "Tu diario",
+    "documentsTitle": "Tus documentos",
+    "caseTitle": "Estado de tu caso",
+    "comingSoon": "Próximamente"
+  },
+  "footer": {
+    "tagline": "Sana — sana, recuerda, recupérate.",
+    "copyright": "© {year} Sana"
+  }
+}

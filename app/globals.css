@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --font-body: var(--font-body);
+  --font-display: var(--font-display);
+}
+
+@layer base {
+  :root {
+    --background: 36 33% 97%;        /* #FAF8F5 cream */
+    --foreground: 215 25% 17%;       /* #1F2937 charcoal */
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 17%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 17%;
+
+    --primary: 182 25% 39%;          /* #4A7C7E sage teal */
+    --primary-foreground: 36 33% 97%;
+
+    --secondary: 36 24% 92%;         /* warm muted */
+    --secondary-foreground: 215 25% 17%;
+
+    --muted: 36 18% 92%;
+    --muted-foreground: 215 14% 40%;
+
+    --accent: 15 70% 61%;            /* #E07856 warm coral */
+    --accent-foreground: 36 33% 97%;
+
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 36 33% 97%;
+
+    --border: 36 15% 86%;
+    --input: 36 15% 86%;
+    --ring: 182 25% 39%;
+
+    --radius: 0.75rem;               /* rounded-xl default */
+  }
+
+  .dark {
+    --background: 215 28% 12%;
+    --foreground: 36 33% 97%;
+    --card: 215 25% 16%;
+    --card-foreground: 36 33% 97%;
+    --popover: 215 25% 16%;
+    --popover-foreground: 36 33% 97%;
+    --primary: 182 30% 55%;
+    --primary-foreground: 215 28% 12%;
+    --secondary: 215 20% 22%;
+    --secondary-foreground: 36 33% 97%;
+    --muted: 215 20% 22%;
+    --muted-foreground: 36 15% 70%;
+    --accent: 15 75% 65%;
+    --accent-foreground: 215 28% 12%;
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 36 33% 97%;
+    --border: 215 15% 25%;
+    --input: 215 15% 25%;
+    --ring: 182 30% 55%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground antialiased; }
+  html { -webkit-tap-highlight-color: transparent; }
+}
