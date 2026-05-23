@@ -137,7 +137,10 @@
     "yesterday": "Ayer",
     "empty": "Aún no hay registros. Tu primer chequeo inicia tu historial de recuperación.",
     "painBadge": "Dolor {level}",
+    "showMore": "Más detalle",
+    "showLess": "Menos detalle",
     "detail": {
+      "quality": "Tipo de dolor",
       "mood": "Estado de ánimo",
       "medications": "Medicamentos",
       "impact": "Impacto"

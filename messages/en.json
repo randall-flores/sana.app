@@ -137,7 +137,10 @@
     "yesterday": "Yesterday",
     "empty": "No entries yet. Your first check-in starts your recovery record.",
     "painBadge": "Pain {level}",
+    "showMore": "More detail",
+    "showLess": "Less detail",
     "detail": {
+      "quality": "Pain quality",
       "mood": "Mood",
       "medications": "Medications",
       "impact": "Impact"
