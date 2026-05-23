@@ -59,6 +59,8 @@
     "step2": {
       "title": "How are you feeling right now?",
       "painLabel": "Pain level (1–10)",
+      "noPain": "No pain",
+      "severePain": "Severe pain",
       "notesLabel": "Anything you want to write down?",
       "notesPlaceholder": "Where it hurts, what helps, how you slept…"
     },
@@ -73,10 +75,18 @@
   },
   "dashboard": {
     "greeting": "Hi {firstName}, how are you feeling today?",
+    "greetingName": "Hi {firstName},",
+    "greetingQuestion": "how are you feeling today?",
     "journalTitle": "Your Journal",
     "documentsTitle": "Your Documents",
     "caseTitle": "Your Case Status",
     "comingSoon": "Coming soon"
+  },
+  "nav": {
+    "journal": "Journal",
+    "documents": "Documents",
+    "caseStatus": "Case Status",
+    "profile": "Profile"
   },
   "footer": {
     "tagline": "Sana — heal, remember, recover.",

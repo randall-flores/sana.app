@@ -72,15 +72,31 @@ export function OnboardingWizard() {
           )}
 
           <div className="flex items-center justify-between gap-3 pt-2">
-            <Button type="button" variant="ghost" onClick={onBack} disabled={step === 1 || pending}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onBack}
+              disabled={step === 1 || pending}
+              className="h-[60px] flex-1 px-6"
+            >
               {tc("back")}
             </Button>
             {step < TOTAL_STEPS ? (
-              <Button type="button" onClick={onNext} disabled={!canAdvance || pending}>
+              <Button
+                type="button"
+                onClick={onNext}
+                disabled={!canAdvance || pending}
+                className="h-[60px] flex-1 px-6"
+              >
                 {tc("continue")}
               </Button>
             ) : (
-              <Button type="button" onClick={onSubmit} disabled={pending}>
+              <Button
+                type="button"
+                onClick={onSubmit}
+                disabled={pending}
+                className="h-[60px] flex-1 px-6"
+              >
                 {t("submit")}
               </Button>
             )}

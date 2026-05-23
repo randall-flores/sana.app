@@ -59,6 +59,8 @@
     "step2": {
       "title": "¿Cómo te sientes ahora?",
       "painLabel": "Nivel de dolor (1–10)",
+      "noPain": "Sin dolor",
+      "severePain": "Dolor severo",
       "notesLabel": "¿Algo que quieras anotar?",
       "notesPlaceholder": "Dónde te duele, qué te ayuda, cómo dormiste…"
     },
@@ -73,10 +75,18 @@
   },
   "dashboard": {
     "greeting": "Hola {firstName}, ¿cómo te sientes hoy?",
+    "greetingName": "Hola {firstName},",
+    "greetingQuestion": "¿cómo te sientes hoy?",
     "journalTitle": "Tu diario",
     "documentsTitle": "Tus documentos",
     "caseTitle": "Estado de tu caso",
     "comingSoon": "Próximamente"
+  },
+  "nav": {
+    "journal": "Diario",
+    "documents": "Documentos",
+    "caseStatus": "Estado del caso",
+    "profile": "Perfil"
   },
   "footer": {
     "tagline": "Sana — sana, recuerda, recupérate.",

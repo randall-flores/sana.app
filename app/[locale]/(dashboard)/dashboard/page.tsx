@@ -1,7 +1,8 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
-import { BookOpen, FolderOpen, Scale } from "lucide-react";
+import { FileText, NotebookPen, Scale } from "lucide-react";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BottomTabBar } from "@/components/BottomTabBar";
 
 export default async function DashboardPage({
   params,
@@ -23,28 +24,37 @@ export default async function DashboardPage({
   const firstName = (profile?.full_name ?? "").split(" ")[0] ?? "";
 
   const placeholders = [
-    { icon: BookOpen, title: t("journalTitle") },
-    { icon: FolderOpen, title: t("documentsTitle") },
+    { icon: NotebookPen, title: t("journalTitle") },
+    { icon: FileText, title: t("documentsTitle") },
     { icon: Scale, title: t("caseTitle") },
   ];
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-12">
-      <h1 className="font-display text-3xl">{t("greeting", { firstName })}</h1>
+    <>
+      <main className="mx-auto max-w-5xl px-6 py-12 pb-28 md:pb-12">
+        <header>
+          <h1 className="font-display text-4xl">{t("greetingName", { firstName })}</h1>
+          <p className="mt-2 text-lg text-muted-foreground">{t("greetingQuestion")}</p>
+        </header>
 
-      <div className="mt-10 grid gap-4 sm:grid-cols-3">
-        {placeholders.map(({ icon: Icon, title }) => (
-          <Card key={title} className="rounded-xl border-border/70 shadow-sm">
-            <CardHeader className="flex flex-row items-center gap-3 space-y-0">
-              <span className="rounded-lg bg-primary/10 p-2">
-                <Icon className="h-5 w-5 text-primary" />
-              </span>
-              <CardTitle className="font-display text-lg">{title}</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">{t("comingSoon")}</CardContent>
-          </Card>
-        ))}
-      </div>
-    </main>
+        <div className="mt-10 grid gap-4 sm:grid-cols-3">
+          {placeholders.map(({ icon: Icon, title }) => (
+            <Card
+              key={title}
+              className="min-h-[160px] justify-between rounded-2xl border-border/70 shadow-sm"
+            >
+              <CardHeader className="flex flex-col items-start gap-3 space-y-0">
+                <span className="rounded-2xl bg-primary/10 p-3">
+                  <Icon className="h-6 w-6 text-primary" />
+                </span>
+                <CardTitle className="font-display text-lg font-semibold">{title}</CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm text-muted-foreground">{t("comingSoon")}</CardContent>
+            </Card>
+          ))}
+        </div>
+      </main>
+      <BottomTabBar />
+    </>
   );
 }

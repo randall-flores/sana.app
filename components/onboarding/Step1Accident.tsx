@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Car, Check, Footprints, HelpCircle } from "lucide-react";
+import { Calendar, Car, Check, Footprints, HelpCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -28,13 +28,17 @@ export function Step1Accident({ value, onChange }: Props) {
 
       <div className="space-y-2">
         <Label htmlFor="accidentDate">{t("dateLabel")}</Label>
-        <Input
-          id="accidentDate"
-          type="date"
-          required
-          value={value.accidentDate}
-          onChange={(e) => onChange({ accidentDate: e.target.value })}
-        />
+        <div className="relative">
+          <Calendar className="pointer-events-none absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            id="accidentDate"
+            type="date"
+            required
+            value={value.accidentDate}
+            onChange={(e) => onChange({ accidentDate: e.target.value })}
+            className="h-12 rounded-xl pl-10"
+          />
+        </div>
       </div>
 
       <div className="space-y-3">
@@ -42,7 +46,7 @@ export function Step1Accident({ value, onChange }: Props) {
         <RadioGroup
           value={value.accidentType}
           onValueChange={(v) => onChange({ accidentType: v as OnboardingInput["accidentType"] })}
-          className="grid gap-3 sm:grid-cols-3"
+          className="grid grid-cols-3 gap-3"
         >
           {options.map(({ id, label, icon: Icon }) => {
             const selected = value.accidentType === id;
@@ -51,18 +55,20 @@ export function Step1Accident({ value, onChange }: Props) {
                 key={id}
                 htmlFor={`type-${id}`}
                 className={cn(
-                  "relative flex min-h-[60px] cursor-pointer items-center gap-3 rounded-xl p-4 transition",
+                  "relative flex min-h-[140px] cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl p-4 text-center transition",
                   selected
                     ? "border-2 border-primary bg-primary/10"
-                    : "border border-border hover:border-primary/60"
+                    : "border border-border bg-card shadow-sm hover:border-primary/60"
                 )}
               >
                 <RadioGroupItem id={`type-${id}`} value={id} className="sr-only" />
-                <Icon className="h-5 w-5 text-primary" />
-                <span className="text-sm">{label}</span>
                 {selected && (
-                  <Check className="absolute right-3 top-3 h-5 w-5 text-primary" />
+                  <span className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                    <Check className="h-4 w-4" />
+                  </span>
                 )}
+                <Icon className="h-8 w-8 text-primary" />
+                <span className="text-sm font-medium">{label}</span>
               </Label>
             );
           })}
@@ -76,6 +82,7 @@ export function Step1Accident({ value, onChange }: Props) {
           rows={3}
           value={value.accidentDescription}
           onChange={(e) => onChange({ accidentDescription: e.target.value })}
+          className="rounded-xl"
         />
       </div>
     </div>
