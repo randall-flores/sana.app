@@ -88,6 +88,31 @@
     "caseStatus": "Estado del caso",
     "profile": "Perfil"
   },
+  "profile": {
+    "title": "Perfil",
+    "nameLabel": "Tu nombre",
+    "save": "Guardar",
+    "saved": "Guardado",
+    "saveError": "No se pudo guardar. Inténtalo de nuevo.",
+    "languageLabel": "Idioma",
+    "accidentTitle": "Detalles del accidente",
+    "accidentDate": "Fecha",
+    "accidentType": "Tipo",
+    "accidentDescription": "Descripción",
+    "attorneyStatus": "Abogado",
+    "attorneyFirm": "Bufete",
+    "noAccident": "Aún no hay detalles",
+    "type": {
+      "car": "Accidente de auto",
+      "slip": "Resbalón y caída",
+      "other": "Otro"
+    },
+    "attorney": {
+      "yes": "Sí",
+      "not_yet": "Todavía no",
+      "not_sure": "No estoy seguro"
+    }
+  },
   "footer": {
     "tagline": "Sana — sana, recuerda, recupérate.",
     "copyright": "© {year} Sana"

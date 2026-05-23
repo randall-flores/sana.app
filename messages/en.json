@@ -88,6 +88,31 @@
     "caseStatus": "Case Status",
     "profile": "Profile"
   },
+  "profile": {
+    "title": "Profile",
+    "nameLabel": "Your name",
+    "save": "Save",
+    "saved": "Saved",
+    "saveError": "Couldn't save. Please try again.",
+    "languageLabel": "Language",
+    "accidentTitle": "Accident details",
+    "accidentDate": "Date",
+    "accidentType": "Type",
+    "accidentDescription": "Description",
+    "attorneyStatus": "Attorney",
+    "attorneyFirm": "Firm",
+    "noAccident": "No accident details yet",
+    "type": {
+      "car": "Car accident",
+      "slip": "Slip & fall",
+      "other": "Something else"
+    },
+    "attorney": {
+      "yes": "Yes",
+      "not_yet": "Not yet",
+      "not_sure": "Not sure"
+    }
+  },
   "footer": {
     "tagline": "Sana — heal, remember, recover.",
     "copyright": "© {year} Sana"
