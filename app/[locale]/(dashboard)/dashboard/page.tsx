@@ -1,9 +1,10 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { FileText, NotebookPen, Scale } from "lucide-react";
-import { redirect } from "@/lib/i18n/navigation";
+import { Link, redirect } from "@/lib/i18n/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BottomTabBar } from "@/components/BottomTabBar";
+import { cn } from "@/lib/utils";
 
 export default async function DashboardPage({
   params,
@@ -28,10 +29,10 @@ export default async function DashboardPage({
   const t = await getTranslations("dashboard");
   const firstName = (profile?.full_name ?? "").split(" ")[0] ?? "";
 
-  const placeholders = [
-    { icon: NotebookPen, title: t("journalTitle") },
-    { icon: FileText, title: t("documentsTitle") },
-    { icon: Scale, title: t("caseTitle") },
+  const cards = [
+    { icon: NotebookPen, title: t("journalTitle"), href: "/journal" as const, cta: t("journalCta") },
+    { icon: FileText, title: t("documentsTitle"), href: null, cta: t("comingSoon") },
+    { icon: Scale, title: t("caseTitle"), href: null, cta: t("comingSoon") },
   ];
 
   return (
@@ -43,20 +44,35 @@ export default async function DashboardPage({
         </header>
 
         <div className="mt-10 grid gap-4 sm:grid-cols-3">
-          {placeholders.map(({ icon: Icon, title }) => (
-            <Card
-              key={title}
-              className="min-h-[160px] justify-between rounded-2xl border-border/70 shadow-sm"
-            >
-              <CardHeader className="flex flex-col items-start gap-3 space-y-0">
-                <span className="rounded-2xl bg-primary/10 p-3">
-                  <Icon className="h-6 w-6 text-primary" />
-                </span>
-                <CardTitle className="font-display text-lg font-semibold">{title}</CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm text-muted-foreground">{t("comingSoon")}</CardContent>
-            </Card>
-          ))}
+          {cards.map(({ icon: Icon, title, href, cta }) => {
+            const card = (
+              <Card
+                className={cn(
+                  "h-full min-h-[160px] justify-between rounded-2xl border-border/70 shadow-sm",
+                  href && "transition-shadow hover:shadow-md"
+                )}
+              >
+                <CardHeader className="flex flex-col items-start gap-3 space-y-0">
+                  <span className="rounded-2xl bg-primary/10 p-3">
+                    <Icon className="h-6 w-6 text-primary" />
+                  </span>
+                  <CardTitle className="font-display text-lg font-semibold">{title}</CardTitle>
+                </CardHeader>
+                <CardContent
+                  className={cn("text-sm", href ? "font-medium text-primary" : "text-muted-foreground")}
+                >
+                  {cta}
+                </CardContent>
+              </Card>
+            );
+            return href ? (
+              <Link key={title} href={href} className="block">
+                {card}
+              </Link>
+            ) : (
+              <div key={title}>{card}</div>
+            );
+          })}
         </div>
       </main>
       <BottomTabBar />

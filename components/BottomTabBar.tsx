@@ -6,7 +6,7 @@ import { Link, usePathname } from "@/lib/i18n/navigation";
 import { cn } from "@/lib/utils";
 
 const tabs = [
-  { href: "/dashboard", labelKey: "journal", icon: NotebookPen },
+  { href: "/journal", labelKey: "journal", icon: NotebookPen },
   { href: "/documents", labelKey: "documents", icon: FileText },
   { href: "/case-status", labelKey: "caseStatus", icon: Scale },
   { href: "/profile", labelKey: "profile", icon: User },
