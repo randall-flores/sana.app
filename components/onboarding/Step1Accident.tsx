@@ -1,11 +1,12 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Car, Footprints, HelpCircle } from "lucide-react";
+import { Car, Check, Footprints, HelpCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import type { OnboardingInput } from "@/lib/validation/onboarding";
 
 type Props = {
@@ -43,17 +44,28 @@ export function Step1Accident({ value, onChange }: Props) {
           onValueChange={(v) => onChange({ accidentType: v as OnboardingInput["accidentType"] })}
           className="grid gap-3 sm:grid-cols-3"
         >
-          {options.map(({ id, label, icon: Icon }) => (
-            <Label
-              key={id}
-              htmlFor={`type-${id}`}
-              className="flex cursor-pointer items-center gap-3 rounded-xl border border-border/70 p-4 transition hover:border-primary/60 has-[input:checked]:border-primary has-[input:checked]:bg-primary/5"
-            >
-              <RadioGroupItem id={`type-${id}`} value={id} className="sr-only" />
-              <Icon className="h-5 w-5 text-primary" />
-              <span className="text-sm">{label}</span>
-            </Label>
-          ))}
+          {options.map(({ id, label, icon: Icon }) => {
+            const selected = value.accidentType === id;
+            return (
+              <Label
+                key={id}
+                htmlFor={`type-${id}`}
+                className={cn(
+                  "relative flex min-h-[60px] cursor-pointer items-center gap-3 rounded-xl p-4 transition",
+                  selected
+                    ? "border-2 border-primary bg-primary/10"
+                    : "border border-border hover:border-primary/60"
+                )}
+              >
+                <RadioGroupItem id={`type-${id}`} value={id} className="sr-only" />
+                <Icon className="h-5 w-5 text-primary" />
+                <span className="text-sm">{label}</span>
+                {selected && (
+                  <Check className="absolute right-3 top-3 h-5 w-5 text-primary" />
+                )}
+              </Label>
+            );
+          })}
         </RadioGroup>
       </div>
 

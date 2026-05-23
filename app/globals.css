@@ -39,16 +39,16 @@
     --popover: 0 0% 100%;
     --popover-foreground: 215 25% 17%;
 
-    --primary: 182 25% 39%;          /* #4A7C7E sage teal */
+    --primary: 184 30% 32%;          /* #4A7C7E sage teal */
     --primary-foreground: 36 33% 97%;
 
     --secondary: 36 24% 92%;         /* warm muted */
     --secondary-foreground: 215 25% 17%;
 
     --muted: 36 18% 92%;
-    --muted-foreground: 215 14% 40%;
+    --muted-foreground: 215 18% 32%;
 
-    --accent: 15 70% 61%;            /* #E07856 warm coral */
+    --accent: 14 72% 52%;            /* #E07856 warm coral */
     --accent-foreground: 36 33% 97%;
 
     --destructive: 0 70% 50%;
