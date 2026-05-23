@@ -5,8 +5,8 @@ import { updateSupabaseSession } from "@/lib/supabase/middleware";
 
 const intlMiddleware = createIntlMiddleware(routing);
 
-export async function middleware(request: NextRequest) {
-  // Skip middleware on the Supabase auth callback so the code exchange runs unmodified.
+export async function proxy(request: NextRequest) {
+  // Skip the proxy on the Supabase auth callback so the code exchange runs unmodified.
   if (request.nextUrl.pathname.startsWith("/auth/callback")) {
     return NextResponse.next();
   }
