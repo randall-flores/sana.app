@@ -1,5 +1,6 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { FileText, NotebookPen, Scale } from "lucide-react";
+import { redirect } from "@/lib/i18n/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BottomTabBar } from "@/components/BottomTabBar";
@@ -14,10 +15,14 @@ export default async function DashboardPage({
 
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    redirect({ href: "/sign-in", locale: locale as "en" | "es" });
+    return null;
+  }
   const { data: profile } = await supabase
     .from("profiles")
     .select("full_name")
-    .eq("id", user!.id)
+    .eq("id", user.id)
     .maybeSingle();
 
   const t = await getTranslations("dashboard");

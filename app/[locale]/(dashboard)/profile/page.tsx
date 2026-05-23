@@ -1,4 +1,5 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
+import { redirect } from "@/lib/i18n/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/[locale]/(auth)/actions";
 import { ProfileSettings } from "@/components/profile/ProfileSettings";
@@ -24,17 +25,21 @@ export default async function ProfilePage({
 
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    redirect({ href: "/sign-in", locale: locale as "en" | "es" });
+    return null;
+  }
 
   const { data: profile } = await supabase
     .from("profiles")
     .select("full_name, preferred_language")
-    .eq("id", user!.id)
+    .eq("id", user.id)
     .maybeSingle();
 
   const { data: caseRow } = await supabase
     .from("cases")
     .select("accident_date, accident_type, accident_description, has_attorney, attorney_firm_name")
-    .eq("user_id", user!.id)
+    .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
