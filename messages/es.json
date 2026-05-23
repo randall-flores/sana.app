@@ -150,7 +150,8 @@
     "journal": "Diario",
     "documents": "Documentos",
     "caseStatus": "Estado del caso",
-    "profile": "Perfil"
+    "profile": "Perfil",
+    "goToJournal": "Ir a mi diario"
   },
   "profile": {
     "title": "Perfil",

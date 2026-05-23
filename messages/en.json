@@ -150,7 +150,8 @@
     "journal": "Journal",
     "documents": "Documents",
     "caseStatus": "Case Status",
-    "profile": "Profile"
+    "profile": "Profile",
+    "goToJournal": "Go to my journal"
   },
   "profile": {
     "title": "Profile",

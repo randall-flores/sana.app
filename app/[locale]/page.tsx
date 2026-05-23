@@ -1,7 +1,8 @@
 import { setRequestLocale } from "next-intl/server";
 import { useTranslations } from "next-intl";
 import { FileText, HeartPulse, Scale, ArrowRight } from "lucide-react";
-import { Link } from "@/lib/i18n/navigation";
+import { Link, redirect } from "@/lib/i18n/navigation";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -12,6 +13,16 @@ export default async function LandingPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+
+  // Logged-in users skip the marketing page and go straight into the app.
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) {
+    redirect({ href: "/dashboard", locale: locale as "en" | "es" });
+  }
+
   return <LandingContent />;
 }
 
