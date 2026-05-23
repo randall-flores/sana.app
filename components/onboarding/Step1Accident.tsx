@@ -36,7 +36,7 @@ export function Step1Accident({ value, onChange }: Props) {
             required
             value={value.accidentDate}
             onChange={(e) => onChange({ accidentDate: e.target.value })}
-            className="h-12 rounded-xl pl-10"
+            className="h-12 w-full min-w-0 appearance-none rounded-xl pl-10"
           />
         </div>
       </div>

@@ -59,10 +59,10 @@ export function Step2Feeling({ value, onChange }: Props) {
             const n = values[0];
             if (n !== undefined) onChange({ painLevel: n });
           }}
-          className={cn("mt-6", sev.range, sev.thumb)}
+          className={cn("mt-8 px-2", sev.range, sev.thumb)}
         />
 
-        <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
+        <div className="mt-8 flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-secondary text-xs font-semibold text-foreground">
               1
