@@ -6,6 +6,7 @@ import {
   Activity,
   AlertCircle,
   BatteryLow,
+  Check,
   ChevronDown,
   CloudRain,
   Frown,
@@ -22,6 +23,7 @@ import {
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { painBadgeClasses, painSeverity } from "@/lib/pain";
+import { useJournalSelection } from "./JournalSelectionProvider";
 
 export type JournalRow = {
   id: string;
@@ -57,6 +59,7 @@ function EntryCard({
   const t = useTranslations("journal");
   const [open, setOpen] = useState(false);
 
+  const { selectionMode, isSelected, toggle } = useJournalSelection();
   const sev = painSeverity(entry.pain_level);
   const MoodIcon = entry.mood ? MOOD_ICONS[entry.mood] ?? Smile : null;
   const hasQuality = !!entry.pain_quality && entry.pain_quality.length > 0;
@@ -64,38 +67,83 @@ function EntryCard({
   const hasMood = !!entry.mood;
   const hasMeds = !!entry.medications && entry.medications.trim().length > 0;
   const hasDetail = hasQuality || hasImpact || hasMood || hasMeds;
+  const selected = isSelected(entry.id);
+
+  const compact = (
+    <>
+      <div className="flex items-center justify-between gap-3">
+        <span
+          className={cn(
+            "inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold",
+            painBadgeClasses[sev]
+          )}
+        >
+          {t("painBadge", { level: entry.pain_level })}
+        </span>
+        <time className="text-sm text-muted-foreground">
+          {timeFmt.format(new Date(entry.created_at))}
+        </time>
+      </div>
+
+      {entry.pain_locations && entry.pain_locations.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {entry.pain_locations.map((loc) => (
+            <span
+              key={loc}
+              className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground"
+            >
+              {t(`locations.${loc}`)}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {entry.notes && <p className="line-clamp-2 text-sm text-foreground/90">{entry.notes}</p>}
+    </>
+  );
+
+  // Selection mode: the whole card is a checkbox; tapping toggles (no expand).
+  if (selectionMode) {
+    return (
+      <Card
+        role="checkbox"
+        aria-checked={selected}
+        aria-label={t("painBadge", { level: entry.pain_level })}
+        tabIndex={0}
+        onClick={() => toggle(entry.id)}
+        onKeyDown={(e) => {
+          if (e.key === " " || e.key === "Enter") {
+            e.preventDefault();
+            toggle(entry.id);
+          }
+        }}
+        className={cn(
+          "relative cursor-pointer rounded-2xl shadow-sm outline-none transition focus-visible:ring-2 focus-visible:ring-ring",
+          selected
+            ? "border-2 border-primary bg-primary/5"
+            : "border border-border/70 hover:border-primary/50"
+        )}
+      >
+        <CardContent className="min-h-[56px] space-y-3 p-5 pr-14">
+          <span
+            aria-hidden
+            className={cn(
+              "absolute top-4 right-4 flex h-6 w-6 items-center justify-center rounded-md border-2 transition",
+              selected ? "border-primary bg-primary text-primary-foreground" : "border-border"
+            )}
+          >
+            {selected && <Check className="h-4 w-4" />}
+          </span>
+          {compact}
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="rounded-2xl border-border/70 shadow-sm">
       <CardContent className="space-y-3 p-5">
-        <div className="flex items-center justify-between gap-3">
-          <span
-            className={cn(
-              "inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold",
-              painBadgeClasses[sev]
-            )}
-          >
-            {t("painBadge", { level: entry.pain_level })}
-          </span>
-          <time className="text-sm text-muted-foreground">
-            {timeFmt.format(new Date(entry.created_at))}
-          </time>
-        </div>
-
-        {entry.pain_locations && entry.pain_locations.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {entry.pain_locations.map((loc) => (
-              <span
-                key={loc}
-                className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground"
-              >
-                {t(`locations.${loc}`)}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {entry.notes && <p className="line-clamp-2 text-sm text-foreground/90">{entry.notes}</p>}
+        {compact}
 
         {hasDetail && (
           <Collapsible open={open} onOpenChange={setOpen}>

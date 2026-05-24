@@ -4,6 +4,9 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { BottomTabBar } from "@/components/BottomTabBar";
 import { JournalEntryForm } from "./JournalEntryForm";
 import { JournalList, type JournalRow } from "./JournalList";
+import { JournalSelectionProvider } from "./JournalSelectionProvider";
+import { JournalHeaderActions } from "./JournalHeaderActions";
+import { SelectBar } from "./SelectBar";
 
 export default async function JournalPage({
   params,
@@ -43,11 +46,14 @@ export default async function JournalPage({
   const t = await getTranslations("journal");
 
   return (
-    <>
+    <JournalSelectionProvider>
       <main className="mx-auto max-w-2xl px-6 py-12 pb-28 md:pb-12">
-        <header className="space-y-2">
-          <h1 className="font-display text-4xl">{t("title")}</h1>
-          <p className="text-lg text-muted-foreground">{t("subtitle")}</p>
+        <header className="flex items-start justify-between gap-4">
+          <div className="space-y-2">
+            <h1 className="font-display text-4xl">{t("title")}</h1>
+            <p className="text-lg text-muted-foreground">{t("subtitle")}</p>
+          </div>
+          <JournalHeaderActions />
         </header>
 
         <div className="mt-8">
@@ -58,7 +64,8 @@ export default async function JournalPage({
           <JournalList entries={entries} />
         </section>
       </main>
+      <SelectBar />
       <BottomTabBar />
-    </>
+    </JournalSelectionProvider>
   );
 }

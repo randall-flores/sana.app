@@ -146,6 +146,33 @@
       "impact": "Impacto"
     }
   },
+  "report": {
+    "button": "Descargar reporte",
+    "dialogTitle": "Descargar reporte",
+    "dialogDescription": "Elige qué entradas incluir. El archivo se descarga a tu dispositivo — Sana nunca lo envía a ningún lado.",
+    "preset7": "Últimos 7 días",
+    "preset30": "Últimos 30 días",
+    "presetAll": "Todas las entradas",
+    "presetCustom": "Rango personalizado",
+    "select": "Seleccionar",
+    "selectedCount": "{count, plural, one {# seleccionada} other {# seleccionadas}}",
+    "cancel": "Cancelar",
+    "from": "Desde",
+    "to": "Hasta",
+    "generate": "Generar PDF",
+    "preparing": "Preparando tu reporte…",
+    "empty": "No hay entradas en este rango.",
+    "customIncomplete": "Elige ambas fechas.",
+    "error": "No se pudo crear el reporte. Inténtalo de nuevo.",
+    "errorNoCase": "No encontramos tu caso. Termina la configuración primero.",
+    "reportTitle": "Diario de Recuperación",
+    "generatedOn": "Generado el {date}",
+    "summaryCount": "{count, plural, one {# entrada} other {# entradas}}",
+    "summaryAvg": "Dolor promedio {avg}",
+    "summaryHigh": "Dolor máximo {max}",
+    "footer": "Generado por Sana — estos son los registros contemporáneos del propio paciente.",
+    "pageNumber": "Página {n} de {total}"
+  },
   "nav": {
     "journal": "Diario",
     "documents": "Documentos",
