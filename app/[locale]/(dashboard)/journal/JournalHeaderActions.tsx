@@ -14,9 +14,14 @@ export function JournalHeaderActions() {
   if (selectionMode) return null;
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
       <DownloadReportDialog />
-      <Button variant="outline" size="sm" className="h-11 gap-2 px-4" onClick={enter}>
+      <Button
+        variant="outline"
+        size="sm"
+        className="h-11 w-full gap-2 px-4 sm:w-auto"
+        onClick={enter}
+      >
         <ListChecks className="h-4 w-4" />
         {t("select")}
       </Button>

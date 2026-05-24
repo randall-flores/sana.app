@@ -91,7 +91,7 @@ export function DownloadReportDialog() {
       }}
     >
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="h-11 gap-2 px-4">
+        <Button variant="outline" size="sm" className="h-11 w-full gap-2 px-4 sm:w-auto">
           <Download className="h-4 w-4" />
           {t("button")}
         </Button>

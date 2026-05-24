@@ -17,7 +17,7 @@ export function Navbar({ userEmail }: { userEmail?: string }) {
           <LocaleSwitcher />
           {userEmail ? (
             <>
-              <Button asChild size="sm">
+              <Button asChild size="sm" className="hidden sm:inline-flex">
                 <Link href="/journal">{tn("goToJournal")}</Link>
               </Button>
               <UserMenu email={userEmail} />

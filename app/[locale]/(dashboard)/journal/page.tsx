@@ -48,10 +48,10 @@ export default async function JournalPage({
   return (
     <JournalSelectionProvider>
       <main className="mx-auto max-w-2xl px-6 py-12 pb-28 md:pb-12">
-        <header className="flex items-start justify-between gap-4">
+        <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-2">
-            <h1 className="font-display text-4xl">{t("title")}</h1>
-            <p className="text-lg text-muted-foreground">{t("subtitle")}</p>
+            <h1 className="font-display text-3xl sm:text-4xl">{t("title")}</h1>
+            <p className="text-base text-muted-foreground sm:text-lg">{t("subtitle")}</p>
           </div>
           <JournalHeaderActions />
         </header>

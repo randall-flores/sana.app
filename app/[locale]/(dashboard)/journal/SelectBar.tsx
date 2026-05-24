@@ -41,15 +41,24 @@ export function SelectBar() {
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 backdrop-blur pb-[env(safe-area-inset-bottom)]">
-      <div className="mx-auto flex max-w-2xl items-center justify-between gap-3 px-6 py-3">
+      <div className="mx-auto flex max-w-2xl flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <span className="text-sm font-medium" aria-live="polite">
           {t("selectedCount", { count })}
         </span>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" onClick={exit} disabled={busy} className="h-11 px-4">
+          <Button
+            variant="ghost"
+            onClick={exit}
+            disabled={busy}
+            className="h-11 flex-1 px-4 sm:flex-none"
+          >
             {t("cancel")}
           </Button>
-          <Button onClick={onDownload} disabled={busy || count === 0} className="h-11 px-4">
+          <Button
+            onClick={onDownload}
+            disabled={busy || count === 0}
+            className="h-11 flex-1 px-4 sm:flex-none"
+          >
             {busy ? t("preparing") : t("button")}
           </Button>
         </div>
