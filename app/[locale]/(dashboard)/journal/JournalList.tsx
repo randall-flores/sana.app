@@ -2,7 +2,17 @@
 
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Activity, ChevronDown, Pill, Smile } from "lucide-react";
+import {
+  Activity,
+  AlertCircle,
+  BatteryLow,
+  ChevronDown,
+  CloudRain,
+  Frown,
+  Pill,
+  Smile,
+  type LucideIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -28,6 +38,15 @@ export type JournalRow = {
 // Calendar-day key in the *viewer's* local timezone (component is client-only).
 const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 
+// Restrained, calm icon per mood — reflects the actual feeling (not always a smile).
+const MOOD_ICONS: Record<string, LucideIcon> = {
+  okay: Smile,
+  anxious: AlertCircle,
+  frustrated: Frown,
+  down: CloudRain,
+  exhausted: BatteryLow,
+};
+
 function EntryCard({
   entry,
   timeFmt,
@@ -39,6 +58,7 @@ function EntryCard({
   const [open, setOpen] = useState(false);
 
   const sev = painSeverity(entry.pain_level);
+  const MoodIcon = entry.mood ? MOOD_ICONS[entry.mood] ?? Smile : null;
   const hasQuality = !!entry.pain_quality && entry.pain_quality.length > 0;
   const hasImpact = !!entry.daily_impact && entry.daily_impact.trim().length > 0;
   const hasMood = !!entry.mood;
@@ -87,9 +107,9 @@ function EntryCard({
               >
                 {/* Presence hints (mood/meds/impact) — match the compact list cue. */}
                 <span className="flex items-center gap-3 text-xs">
-                  {hasMood && (
+                  {MoodIcon && (
                     <span className="inline-flex items-center gap-1">
-                      <Smile className="h-4 w-4" aria-hidden />
+                      <MoodIcon className="h-4 w-4" aria-hidden />
                       {t(`mood.${entry.mood}`)}
                     </span>
                   )}
