@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { painBadgeClasses, painSeverity } from "@/lib/pain";
+import { labelFor, REGION_LABELS } from "@/components/journal/BodyPainMap";
 import { useJournalSelection } from "./JournalSelectionProvider";
 
 export type JournalRow = {
@@ -33,7 +34,7 @@ export type JournalRow = {
   pain_locations: string[] | null;
   pain_quality: string[] | null;
   daily_impact: string | null;
-  mood: string | null;
+  mood: string[] | null;
   medications: string | null;
 };
 
@@ -61,10 +62,11 @@ function EntryCard({
 
   const { selectionMode, isSelected, toggle } = useJournalSelection();
   const sev = painSeverity(entry.pain_level);
-  const MoodIcon = entry.mood ? MOOD_ICONS[entry.mood] ?? Smile : null;
+  const locale = useLocale() as "en" | "es";
+  const moods = entry.mood ?? [];
   const hasQuality = !!entry.pain_quality && entry.pain_quality.length > 0;
   const hasImpact = !!entry.daily_impact && entry.daily_impact.trim().length > 0;
-  const hasMood = !!entry.mood;
+  const hasMood = moods.length > 0;
   const hasMeds = !!entry.medications && entry.medications.trim().length > 0;
   const hasDetail = hasQuality || hasImpact || hasMood || hasMeds;
   const selected = isSelected(entry.id);
@@ -92,7 +94,7 @@ function EntryCard({
               key={loc}
               className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground"
             >
-              {t(`locations.${loc}`)}
+              {loc in REGION_LABELS ? labelFor(loc, locale) : t(`locations.${loc}`)}
             </span>
           ))}
         </div>
@@ -155,10 +157,13 @@ function EntryCard({
               >
                 {/* Presence hints (mood/meds/impact) — match the compact list cue. */}
                 <span className="flex items-center gap-3 text-xs">
-                  {MoodIcon && (
+                  {hasMood && (
                     <span className="inline-flex items-center gap-1">
-                      <MoodIcon className="h-4 w-4" aria-hidden />
-                      {t(`mood.${entry.mood}`)}
+                      {moods.map((m) => {
+                        const Icon = MOOD_ICONS[m] ?? Smile;
+                        return <Icon key={m} className="h-4 w-4" aria-hidden />;
+                      })}
+                      {moods.map((m) => t(`mood.${m}`)).join(", ")}
                     </span>
                   )}
                   {hasMeds && (
@@ -216,7 +221,9 @@ function EntryCard({
                   <p className="text-xs font-semibold text-muted-foreground">
                     {t("detail.mood")}
                   </p>
-                  <p className="text-sm text-foreground/90">{t(`mood.${entry.mood}`)}</p>
+                  <p className="text-sm text-foreground/90">
+                    {moods.map((m) => t(`mood.${m}`)).join(", ")}
+                  </p>
                 </div>
               )}
 

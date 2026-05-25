@@ -10,7 +10,7 @@ export type ReportRow = {
   pain_locations: string[] | null;
   pain_quality: string[] | null;
   daily_impact: string | null;
-  mood: string | null;
+  mood: string[] | null;
   medications: string | null;
 };
 

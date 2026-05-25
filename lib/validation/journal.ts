@@ -64,7 +64,7 @@ export const journalEntrySchema = z.object({
   painLocations: z.array(z.enum(PAIN_LOCATIONS)).optional(),
   painQuality: z.array(z.enum(PAIN_QUALITIES)).optional(),
   dailyImpact: z.string().max(1000).optional(),
-  mood: z.enum(MOODS).optional(),
+  mood: z.array(z.enum(MOODS)).optional(),
   medications: z.string().max(500).optional(),
 });
 

@@ -92,7 +92,11 @@ export function buildReportData(res: OkResult): ReportData {
     if (e.notes && e.notes.trim()) vm.notes = { label: tj("notesLabel"), value: e.notes };
     if (e.daily_impact && e.daily_impact.trim())
       vm.impact = { label: tj("detail.impact"), value: e.daily_impact };
-    if (e.mood) vm.mood = { label: tj("detail.mood"), value: tj(`mood.${e.mood}`) };
+    if (e.mood && e.mood.length > 0)
+      vm.mood = {
+        label: tj("detail.mood"),
+        value: e.mood.map((m) => tj(`mood.${m}`)).join(", "),
+      };
     if (e.medications && e.medications.trim())
       vm.meds = { label: tj("detail.medications"), value: e.medications };
     return vm;

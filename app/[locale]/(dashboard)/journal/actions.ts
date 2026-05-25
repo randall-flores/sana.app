@@ -39,7 +39,7 @@ export async function createJournalEntry(input: JournalEntryInput): Promise<Acti
     pain_locations: d.painLocations && d.painLocations.length > 0 ? d.painLocations : null,
     pain_quality: d.painQuality && d.painQuality.length > 0 ? d.painQuality : null,
     daily_impact: clean(d.dailyImpact),
-    mood: d.mood ?? null,
+    mood: d.mood && d.mood.length > 0 ? d.mood : null,
     medications: clean(d.medications),
   });
   if (insertError) return { ok: false, error: "generic" };

@@ -37,7 +37,7 @@ const DEFAULTS: JournalEntryInput = {
   painLocations: [],
   painQuality: [],
   dailyImpact: "",
-  mood: undefined,
+  mood: [],
   medications: "",
 };
 
@@ -84,7 +84,7 @@ export function JournalEntryForm() {
   const painLevel = watch("painLevel");
   const locations = watch("painLocations") ?? [];
   const quality = watch("painQuality") ?? [];
-  const mood = watch("mood");
+  const moods = watch("mood") ?? [];
   const sev = painSliderClasses[painSeverity(painLevel)];
 
   const toggleLocation = (loc: PainLocation) =>
@@ -101,8 +101,12 @@ export function JournalEntryForm() {
       { shouldValidate: true }
     );
 
-  const selectMood = (m: Mood) =>
-    setValue("mood", mood === m ? undefined : m, { shouldValidate: true });
+  const toggleMood = (m: Mood) =>
+    setValue(
+      "mood",
+      moods.includes(m) ? moods.filter((v) => v !== m) : [...moods, m],
+      { shouldValidate: true }
+    );
 
   const onValid = (values: JournalEntryInput) => {
     setError(null);
@@ -217,7 +221,7 @@ export function JournalEntryForm() {
                 <legend className="text-sm font-medium">{t("moodLabel")}</legend>
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {MOODS.map((m) => (
-                    <Chip key={m} selected={mood === m} onClick={() => selectMood(m)}>
+                    <Chip key={m} selected={moods.includes(m)} onClick={() => toggleMood(m)}>
                       {t(`mood.${m}`)}
                     </Chip>
                   ))}
