@@ -4,12 +4,15 @@ import {
   Document,
   Font,
   Page,
+  Path,
   StyleSheet,
+  Svg,
   Text,
   View,
   pdf,
 } from "@react-pdf/renderer";
 import { painSeverity } from "@/lib/pain";
+import { NEUTRAL_FRONT } from "@/components/journal/BodyPainPaths";
 
 // Register the app's fonts as static TTFs so accented Spanish (ñ á é í ó ú ü ¿ ¡)
 // renders correctly instead of falling back to Helvetica/tofu.
@@ -36,6 +39,8 @@ export type ReportEntryVM = {
   time: string;
   painLabel: string;
   painLevel: number;
+  /** Raw region keys for the figure snapshot (the text labels live in `locations`). */
+  locationKeys?: string[];
   locations?: ReportField;
   quality?: ReportField;
   notes?: ReportField;
@@ -108,6 +113,9 @@ const styles = StyleSheet.create({
   field: { marginTop: 4 },
   fieldLabel: { fontSize: 8, color: MUTED, fontWeight: 600, textTransform: "uppercase" },
   fieldValue: { fontSize: 10, color: INK },
+  locationRow: { flexDirection: "row", alignItems: "flex-start", marginTop: 4 },
+  bodyFigure: { marginRight: 10 },
+  locationText: { flex: 1 },
   footer: {
     position: "absolute",
     bottom: 28,
@@ -125,6 +133,31 @@ function Field({ field }: { field: ReportField }) {
       <Text style={styles.fieldLabel}>{field.label}</Text>
       <Text style={styles.fieldValue}>{field.value}</Text>
     </View>
+  );
+}
+
+// Static print snapshot of the body map. Selected regions fill sage; the rest
+// render as a faint outline. No interactivity — fill/stroke are Path props
+// (react-pdf SVG primitives don't read CSS classes).
+function BodyFigure({ selected }: { selected: string[] }) {
+  const on = new Set(selected);
+  return (
+    <Svg width={40} height={113} viewBox="0 0 120 340" style={styles.bodyFigure}>
+      {NEUTRAL_FRONT.map((r) => {
+        const sel = on.has(r.location);
+        return (
+          <Path
+            key={r.location}
+            d={r.d}
+            fill={SAGE}
+            fillOpacity={sel ? 0.28 : 0.05}
+            stroke={SAGE}
+            strokeOpacity={sel ? 0.9 : 0.45}
+            strokeWidth={sel ? 1.8 : 1.4}
+          />
+        );
+      })}
+    </Svg>
   );
 }
 
@@ -154,7 +187,19 @@ export function ReportDocument({ data }: { data: ReportData }) {
                       {e.painLabel}: {e.painLevel}
                     </Text>
                   </View>
-                  {e.locations ? <Field field={e.locations} /> : null}
+                  {e.locationKeys && e.locationKeys.length > 0 ? (
+                    <View style={styles.locationRow}>
+                      <BodyFigure selected={e.locationKeys} />
+                      {e.locations ? (
+                        <View style={styles.locationText}>
+                          <Text style={styles.fieldLabel}>{e.locations.label}</Text>
+                          <Text style={styles.fieldValue}>{e.locations.value}</Text>
+                        </View>
+                      ) : null}
+                    </View>
+                  ) : e.locations ? (
+                    <Field field={e.locations} />
+                  ) : null}
                   {e.quality ? <Field field={e.quality} /> : null}
                   {e.notes ? <Field field={e.notes} /> : null}
                   {e.impact ? <Field field={e.impact} /> : null}

@@ -75,6 +75,7 @@ export function buildReportData(res: OkResult): ReportData {
       painLevel: e.pain_level,
     };
     if (e.pain_locations && e.pain_locations.length > 0) {
+      vm.locationKeys = e.pain_locations;
       vm.locations = {
         label: tj("locationsLabel"),
         // Hybrid: body-map region keys → labelFor; legacy chip keys → messages JSON.
