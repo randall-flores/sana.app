@@ -1,6 +1,7 @@
 import { createTranslator } from "next-intl";
 import enMessages from "@/messages/en.json";
 import esMessages from "@/messages/es.json";
+import { labelFor, REGION_LABELS } from "@/components/journal/BodyPainMap";
 import type { ReportResult, ReportRow } from "./report-actions";
 import type { ReportData, ReportEntryVM } from "./ReportPdf";
 
@@ -76,7 +77,10 @@ export function buildReportData(res: OkResult): ReportData {
     if (e.pain_locations && e.pain_locations.length > 0) {
       vm.locations = {
         label: tj("locationsLabel"),
-        value: e.pain_locations.map((l) => tj(`locations.${l}`)).join(", "),
+        // Hybrid: body-map region keys → labelFor; legacy chip keys → messages JSON.
+        value: e.pain_locations
+          .map((l) => (l in REGION_LABELS ? labelFor(l, lang) : tj(`locations.${l}`)))
+          .join(", "),
       };
     }
     if (e.pain_quality && e.pain_quality.length > 0) {

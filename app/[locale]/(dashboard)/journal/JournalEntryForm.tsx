@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { ChevronDown } from "lucide-react";
 import { useRouter } from "@/lib/i18n/navigation";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { painSeverity, painSliderClasses } from "@/lib/pain";
+import { BodyPainMap } from "@/components/journal/BodyPainMap";
 import { createJournalEntry } from "./actions";
 import {
   journalEntrySchema,
@@ -26,7 +27,6 @@ import {
   type PainLocation,
   type PainQuality,
   type Mood,
-  PAIN_LOCATIONS,
   PAIN_QUALITIES,
   MOODS,
 } from "@/lib/validation/journal";
@@ -69,6 +69,7 @@ function Chip({
 
 export function JournalEntryForm() {
   const t = useTranslations("journal");
+  const lang = useLocale() as "en" | "es";
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -153,17 +154,11 @@ export function JournalEntryForm() {
 
           <fieldset className="space-y-3">
             <legend className="text-sm font-medium">{t("locationsLabel")}</legend>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {PAIN_LOCATIONS.map((loc) => (
-                <Chip
-                  key={loc}
-                  selected={locations.includes(loc)}
-                  onClick={() => toggleLocation(loc)}
-                >
-                  {t(`locations.${loc}`)}
-                </Chip>
-              ))}
-            </div>
+            <BodyPainMap
+              selectedLocations={locations}
+              onToggleLocation={(loc) => toggleLocation(loc as PainLocation)}
+              lang={lang}
+            />
           </fieldset>
 
           <div className="space-y-2">

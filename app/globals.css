@@ -94,3 +94,27 @@
   body { @apply bg-background text-foreground antialiased; }
   html { -webkit-tap-highlight-color: transparent; }
 }
+
+/* ── Body pain map — SVG region states (BodyPainMap.tsx) ──────────────
+   Soft sage fill on selection; no severity color (pain level lives on
+   the slider, per design). */
+.body-part {
+  fill: rgba(67, 102, 82, 0.05);
+  stroke: rgba(67, 102, 82, 0.5);
+  stroke-width: 1.1;
+  cursor: pointer;
+  transition: fill 0.18s ease, stroke 0.18s ease;
+  outline: none;
+}
+.body-part:hover {
+  fill: rgba(67, 102, 82, 0.14);
+  stroke: rgba(67, 102, 82, 0.8);
+}
+.body-part:focus-visible {
+  stroke: rgba(67, 102, 82, 1);
+  stroke-width: 2.2;
+}
+.body-part.selected {
+  fill: rgba(67, 102, 82, 0.28);
+  stroke: rgba(67, 102, 82, 0.9);
+}
