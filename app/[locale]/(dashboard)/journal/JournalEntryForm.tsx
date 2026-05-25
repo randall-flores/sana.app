@@ -56,7 +56,7 @@ function Chip({
       onClick={onClick}
       aria-pressed={selected}
       className={cn(
-        "flex min-h-[56px] items-center justify-center rounded-xl px-4 text-center text-sm font-medium transition",
+        "flex min-h-[56px] items-center justify-center rounded-xl px-4 py-2 text-center text-sm font-medium leading-tight transition [overflow-wrap:anywhere]",
         selected
           ? "border-2 border-primary bg-primary/10 text-foreground"
           : "border border-border text-muted-foreground hover:border-primary/60"
