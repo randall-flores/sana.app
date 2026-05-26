@@ -146,7 +146,12 @@
       "impact": "Impact"
     },
     "list": {
-      "noAreas": "No areas logged"
+      "noAreas": "No areas logged",
+      "filterAll": "All",
+      "filterSevere": "Severe 7+",
+      "filterWeek": "This week",
+      "filterArea": "By area",
+      "emptyFiltered": "No entries match this filter."
     }
   },
   "report": {

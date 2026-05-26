@@ -199,9 +199,14 @@ function EntryCard({
   );
 }
 
+type Filter = "all" | "severe" | "week" | "area";
+
 export function JournalList({ entries }: { entries: JournalRow[] }) {
   const t = useTranslations("journal");
-  const locale = useLocale();
+  const locale = useLocale() as "en" | "es";
+
+  const [filter, setFilter] = useState<Filter>("all");
+  const [areaFilter, setAreaFilter] = useState<string | null>(null);
 
   // Date grouping depends on the browser timezone, which the server doesn't
   // know — render only on the client so SSR and client agree (no hydration drift).
@@ -212,9 +217,31 @@ export function JournalList({ entries }: { entries: JournalRow[] }) {
     () => false,
   );
 
+  const areaLabel = (loc: string) =>
+    loc in REGION_LABELS ? labelFor(loc, locale) : t(`locations.${loc}`);
+
+  // Unique areas present across all entries (for the "By area" selector).
+  const allAreas = useMemo(() => {
+    const s = new Set<string>();
+    for (const e of entries) for (const l of e.pain_locations ?? []) s.add(l);
+    return Array.from(s);
+  }, [entries]);
+
+  // Filter BEFORE grouping. Date math ("This week") only matters post-mount.
+  const filtered = useMemo(() => {
+    if (filter === "severe") return entries.filter((e) => e.pain_level >= 7);
+    if (filter === "week") {
+      const cut = Date.now() - 7 * 86_400_000;
+      return entries.filter((e) => new Date(e.created_at).getTime() >= cut);
+    }
+    if (filter === "area" && areaFilter)
+      return entries.filter((e) => e.pain_locations?.includes(areaFilter));
+    return entries;
+  }, [entries, filter, areaFilter]);
+
   const view = useMemo(() => {
     const groups = new Map<string, JournalRow[]>();
-    for (const e of entries) {
+    for (const e of filtered) {
       const key = dayKey(new Date(e.created_at));
       const bucket = groups.get(key);
       if (bucket) bucket.push(e);
@@ -234,12 +261,13 @@ export function JournalList({ entries }: { entries: JournalRow[] }) {
       }),
       timeFmt: new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" }),
     };
-  }, [entries, locale]);
+  }, [filtered, locale]);
 
   if (!mounted) {
     return <div className="h-24 animate-pulse rounded-2xl bg-muted/40" aria-hidden />;
   }
 
+  // No entries at all — the original welcome empty state (no filter bar).
   if (entries.length === 0) {
     return (
       <Card className="rounded-2xl border-dashed border-border/70 bg-transparent shadow-none">
@@ -254,20 +282,91 @@ export function JournalList({ entries }: { entries: JournalRow[] }) {
     return view.dateFmt.format(sample);
   };
 
+  const pill = (key: Filter, label: string, onClick: () => void) => (
+    <button
+      key={key}
+      type="button"
+      aria-pressed={filter === key}
+      onClick={onClick}
+      className={cn(
+        "h-10 shrink-0 rounded-full px-4 text-sm font-medium transition",
+        filter === key
+          ? "bg-primary text-primary-foreground"
+          : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+      )}
+    >
+      {label}
+    </button>
+  );
+
   return (
-    <div className="space-y-8">
-      {Array.from(view.groups.entries()).map(([key, dayEntries]) => (
-        <div key={key} className="space-y-3">
-          <h2 className="text-sm font-semibold tracking-wide text-muted-foreground">
-            {headingFor(key, new Date(dayEntries[0]!.created_at))}
-          </h2>
-          <div className="space-y-3">
-            {dayEntries.map((e) => (
-              <EntryCard key={e.id} entry={e} timeFmt={view.timeFmt} />
-            ))}
-          </div>
+    <div className="space-y-6">
+      {/* Filter pills */}
+      <div className="flex flex-wrap gap-2">
+        {pill("all", t("list.filterAll"), () => {
+          setFilter("all");
+          setAreaFilter(null);
+        })}
+        {pill("severe", t("list.filterSevere"), () => {
+          setFilter("severe");
+          setAreaFilter(null);
+        })}
+        {pill("week", t("list.filterWeek"), () => {
+          setFilter("week");
+          setAreaFilter(null);
+        })}
+        {allAreas.length > 0 &&
+          pill("area", t("list.filterArea"), () => {
+            setFilter("area");
+            setAreaFilter(allAreas[0]!);
+          })}
+      </div>
+
+      {/* Area selector (only in "By area" mode) */}
+      {filter === "area" && allAreas.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {allAreas.map((a) => (
+            <button
+              key={a}
+              type="button"
+              aria-pressed={areaFilter === a}
+              onClick={() => setAreaFilter(a)}
+              className={cn(
+                "h-9 shrink-0 rounded-full px-3 text-xs font-medium ring-1 transition",
+                areaFilter === a
+                  ? "bg-primary/10 text-primary ring-primary"
+                  : "bg-background text-muted-foreground ring-border hover:text-foreground"
+              )}
+            >
+              {areaLabel(a)}
+            </button>
+          ))}
         </div>
-      ))}
+      )}
+
+      {/* Grouped list, or a friendly empty state when the filter excludes everything */}
+      {filtered.length === 0 ? (
+        <Card className="rounded-2xl border-dashed border-border/70 bg-transparent shadow-none">
+          <CardContent className="p-8 text-center text-muted-foreground">
+            {t("list.emptyFiltered")}
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-8">
+          {Array.from(view.groups.entries()).map(([key, dayEntries]) => (
+            <div key={key} className="space-y-3">
+              <h2 className="text-sm font-semibold tracking-wide text-muted-foreground">
+                {headingFor(key, new Date(dayEntries[0]!.created_at))}
+              </h2>
+              <div className="space-y-3">
+                {dayEntries.map((e) => (
+                  <EntryCard key={e.id} entry={e} timeFmt={view.timeFmt} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -146,7 +146,12 @@
       "impact": "Impacto"
     },
     "list": {
-      "noAreas": "Sin zonas registradas"
+      "noAreas": "Sin zonas registradas",
+      "filterAll": "Todas",
+      "filterSevere": "Severo 7+",
+      "filterWeek": "Esta semana",
+      "filterArea": "Por zona",
+      "emptyFiltered": "Ningún registro coincide con este filtro."
     }
   },
   "report": {
