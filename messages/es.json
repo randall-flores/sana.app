@@ -151,7 +151,14 @@
       "filterSevere": "Severo 7+",
       "filterWeek": "Esta semana",
       "filterArea": "Por zona",
-      "emptyFiltered": "Ningún registro coincide con este filtro."
+      "emptyFiltered": "Ningún registro coincide con este filtro.",
+      "statEntries": "Registros",
+      "statAvg": "Dolor prom.",
+      "trendCaption": "Dolor en los últimos 14 días",
+      "trendEmpty": "Aún no hay datos recientes para graficar.",
+      "dirEasing": "Mejorando",
+      "dirSteady": "Estable",
+      "dirWorsening": "Empeorando"
     }
   },
   "report": {

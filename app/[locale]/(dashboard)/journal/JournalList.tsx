@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, Minus, TrendingDown, TrendingUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Collapsible,
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { painBadgeClasses, painSeverity } from "@/lib/pain";
+import { computeOverview, dayKey, type DayPoint, type Direction } from "@/lib/journalStats";
 import { labelFor, REGION_LABELS } from "@/components/journal/BodyPainMap";
 import { useJournalSelection } from "./JournalSelectionProvider";
 
@@ -26,8 +27,79 @@ export type JournalRow = {
   medications: string | null;
 };
 
-// Calendar-day key in the *viewer's* local timezone (component is client-only).
-const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+// Severity → text color (reuses the lib/pain mapping, not a new one).
+const SEV_TEXT = { low: "text-primary", mid: "text-pain-mid", high: "text-pain-high" } as const;
+
+// Hand-rolled 14-day sparkline (no charting lib). Breaks the line on no-entry
+// days; isolated days render as a dot; the worst day is marked.
+function TrendSparkline({
+  series,
+  worstIndex,
+  color,
+}: {
+  series: DayPoint[];
+  worstIndex: number;
+  color: string;
+}) {
+  const W = 300;
+  const H = 56;
+  const pad = 5;
+  const n = series.length;
+  const x = (i: number) => pad + (i / (n - 1)) * (W - 2 * pad);
+  const y = (v: number) => H - pad - (v / 10) * (H - 2 * pad); // pain 0..10, higher = up
+
+  // Group consecutive non-null days into segments.
+  const segments: { i: number; v: number }[][] = [];
+  let cur: { i: number; v: number }[] = [];
+  series.forEach((p, i) => {
+    if (p.avg === null) {
+      if (cur.length) segments.push(cur);
+      cur = [];
+    } else {
+      cur.push({ i, v: p.avg });
+    }
+  });
+  if (cur.length) segments.push(cur);
+
+  const worst = worstIndex >= 0 ? series[worstIndex] : undefined;
+
+  return (
+    <svg
+      viewBox={`0 0 ${W} ${H}`}
+      preserveAspectRatio="none"
+      className="h-14 w-full"
+      role="img"
+      aria-hidden
+    >
+      {segments.map((seg, si) =>
+        seg.length === 1 ? (
+          <circle key={si} cx={x(seg[0]!.i)} cy={y(seg[0]!.v)} r={2.5} fill={color} />
+        ) : (
+          <polyline
+            key={si}
+            fill="none"
+            stroke={color}
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            vectorEffect="non-scaling-stroke"
+            points={seg.map((p) => `${x(p.i)},${y(p.v)}`).join(" ")}
+          />
+        )
+      )}
+      {worst && worst.avg !== null && (
+        <circle
+          cx={x(worstIndex)}
+          cy={y(worst.avg)}
+          r={3.5}
+          fill={color}
+          stroke="white"
+          strokeWidth={1.5}
+        />
+      )}
+    </svg>
+  );
+}
 
 function EntryCard({
   entry,
@@ -263,6 +335,14 @@ export function JournalList({ entries }: { entries: JournalRow[] }) {
     };
   }, [filtered, locale]);
 
+  // Overview from the FULL set (not the filtered view). `mounted` in deps so the
+  // 14-day window recomputes with the client clock after hydration.
+  const overview = useMemo(
+    () => computeOverview(entries, new Date()),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [entries, mounted]
+  );
+
   if (!mounted) {
     return <div className="h-24 animate-pulse rounded-2xl bg-muted/40" aria-hidden />;
   }
@@ -299,8 +379,70 @@ export function JournalList({ entries }: { entries: JournalRow[] }) {
     </button>
   );
 
+  // Overview presentation: direction word/icon/color + trend line color.
+  const dirMeta: Record<Direction, { Icon: typeof Minus; cls: string; key: string }> = {
+    easing: { Icon: TrendingDown, cls: "text-primary", key: "list.dirEasing" },
+    steady: { Icon: Minus, cls: "text-muted-foreground", key: "list.dirSteady" },
+    worsening: { Icon: TrendingUp, cls: "text-pain-high", key: "list.dirWorsening" },
+  };
+  const dir = dirMeta[overview.direction];
+  const DirIcon = dir.Icon;
+  const avgSev = painSeverity(overview.avg);
+  const lineColor = {
+    low: "var(--color-primary)",
+    mid: "var(--color-pain-mid)",
+    high: "var(--color-pain-high)",
+  }[avgSev];
+  const hasTrend = overview.dailySeries.some((p) => p.avg !== null);
+
   return (
     <div className="space-y-6">
+      {/* Overview header */}
+      <div className="space-y-3">
+        <div className="grid grid-cols-2 gap-3">
+          <Card className="rounded-2xl border-border/70 shadow-sm">
+            <CardContent className="p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                {t("list.statEntries")}
+              </p>
+              <p className="mt-1 font-display text-2xl tabular-nums">{overview.count}</p>
+            </CardContent>
+          </Card>
+          <Card className="rounded-2xl border-border/70 shadow-sm">
+            <CardContent className="p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                {t("list.statAvg")}
+              </p>
+              <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                <span className={cn("font-display text-2xl tabular-nums", SEV_TEXT[avgSev])}>
+                  {overview.avg.toFixed(1)}
+                </span>
+                <span className={cn("inline-flex items-center gap-1 text-xs font-medium", dir.cls)}>
+                  <DirIcon className="h-3.5 w-3.5" aria-hidden />
+                  {t(dir.key)}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        <Card className="rounded-2xl border-border/70 shadow-sm">
+          <CardContent className="space-y-2 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              {t("list.trendCaption")}
+            </p>
+            {hasTrend ? (
+              <TrendSparkline
+                series={overview.dailySeries}
+                worstIndex={overview.worstIndex}
+                color={lineColor}
+              />
+            ) : (
+              <p className="text-sm text-muted-foreground">{t("list.trendEmpty")}</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Filter pills */}
       <div className="flex flex-wrap gap-2">
         {pill("all", t("list.filterAll"), () => {

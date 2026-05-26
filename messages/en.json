@@ -151,7 +151,14 @@
       "filterSevere": "Severe 7+",
       "filterWeek": "This week",
       "filterArea": "By area",
-      "emptyFiltered": "No entries match this filter."
+      "emptyFiltered": "No entries match this filter.",
+      "statEntries": "Entries logged",
+      "statAvg": "Avg pain",
+      "trendCaption": "Pain over the last 14 days",
+      "trendEmpty": "Not enough recent data to chart.",
+      "dirEasing": "Easing",
+      "dirSteady": "Steady",
+      "dirWorsening": "Worsening"
     }
   },
   "report": {
