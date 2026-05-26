@@ -144,6 +144,9 @@
       "mood": "Mood",
       "medications": "Medications",
       "impact": "Impact"
+    },
+    "list": {
+      "noAreas": "No areas logged"
     }
   },
   "report": {

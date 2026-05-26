@@ -2,19 +2,7 @@
 
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import {
-  Activity,
-  AlertCircle,
-  BatteryLow,
-  Check,
-  ChevronDown,
-  CloudRain,
-  Frown,
-  Pill,
-  Smile,
-  type LucideIcon,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Check, ChevronDown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Collapsible,
@@ -41,15 +29,6 @@ export type JournalRow = {
 // Calendar-day key in the *viewer's* local timezone (component is client-only).
 const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 
-// Restrained, calm icon per mood — reflects the actual feeling (not always a smile).
-const MOOD_ICONS: Record<string, LucideIcon> = {
-  okay: Smile,
-  anxious: AlertCircle,
-  frustrated: Frown,
-  down: CloudRain,
-  exhausted: BatteryLow,
-};
-
 function EntryCard({
   entry,
   timeFmt,
@@ -71,36 +50,45 @@ function EntryCard({
   const hasDetail = hasQuality || hasImpact || hasMood || hasMeds;
   const selected = isSelected(entry.id);
 
+  // Localized area labels (hybrid: body-map keys → labelFor, legacy → messages).
+  const areaLabels = (entry.pain_locations ?? []).map((loc) =>
+    loc in REGION_LABELS ? labelFor(loc, locale) : t(`locations.${loc}`)
+  );
+  const moodText = moods.map((m) => t(`mood.${m}`)).join(", ");
+  // Mood (translated) + notes (verbatim, never translated).
+  const secondLine = [moodText, entry.notes?.trim()].filter(Boolean).join(" — ");
+
+  // Dense single-row summary, shared by normal + selection modes.
   const compact = (
     <>
-      <div className="flex items-center justify-between gap-3">
-        <span
-          className={cn(
-            "inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold",
-            painBadgeClasses[sev]
-          )}
-        >
-          {t("painBadge", { level: entry.pain_level })}
-        </span>
-        <time className="text-sm text-muted-foreground">
-          {timeFmt.format(new Date(entry.created_at))}
-        </time>
-      </div>
-
-      {entry.pain_locations && entry.pain_locations.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {entry.pain_locations.map((loc) => (
-            <span
-              key={loc}
-              className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground"
-            >
-              {loc in REGION_LABELS ? labelFor(loc, locale) : t(`locations.${loc}`)}
+      <span
+        aria-label={t("painBadge", { level: entry.pain_level })}
+        className={cn(
+          "flex h-9 min-w-[2.25rem] shrink-0 items-center justify-center rounded-full px-2 text-sm font-semibold tabular-nums",
+          painBadgeClasses[sev]
+        )}
+      >
+        {entry.pain_level}
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-baseline gap-2">
+          {areaLabels.length > 0 ? (
+            <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">
+              {areaLabels.join(" · ")}
             </span>
-          ))}
+          ) : (
+            <span className="min-w-0 flex-1 truncate text-sm italic text-muted-foreground">
+              {t("list.noAreas")}
+            </span>
+          )}
+          <time className="shrink-0 text-xs text-muted-foreground">
+            {timeFmt.format(new Date(entry.created_at))}
+          </time>
         </div>
-      )}
-
-      {entry.notes && <p className="line-clamp-2 text-sm text-foreground/90">{entry.notes}</p>}
+        {secondLine && (
+          <p className="mt-0.5 truncate text-sm text-muted-foreground">{secondLine}</p>
+        )}
+      </div>
     </>
   );
 
@@ -126,7 +114,7 @@ function EntryCard({
             : "border border-border/70 hover:border-primary/50"
         )}
       >
-        <CardContent className="min-h-[56px] space-y-3 p-5 pr-14">
+        <CardContent className="min-h-[56px] p-5 pr-14">
           <span
             aria-hidden
             className={cn(
@@ -136,7 +124,7 @@ function EntryCard({
           >
             {selected && <Check className="h-4 w-4" />}
           </span>
-          {compact}
+          <div className="flex items-start gap-3">{compact}</div>
         </CardContent>
       </Card>
     );
@@ -144,101 +132,69 @@ function EntryCard({
 
   return (
     <Card className="rounded-2xl border-border/70 shadow-sm">
-      <CardContent className="space-y-3 p-5">
-        {compact}
-
-        {hasDetail && (
-          <Collapsible open={open} onOpenChange={setOpen}>
-            <CollapsibleTrigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                className="-mx-2 flex h-auto min-h-[56px] w-full items-center justify-between gap-3 rounded-xl px-2 text-muted-foreground hover:bg-muted/50"
-              >
-                {/* Presence hints (mood/meds/impact) — match the compact list cue. */}
-                <span className="flex items-center gap-3 text-xs">
-                  {hasMood && (
-                    <span className="inline-flex items-center gap-1">
-                      {moods.map((m) => {
-                        const Icon = MOOD_ICONS[m] ?? Smile;
-                        return <Icon key={m} className="h-4 w-4" aria-hidden />;
-                      })}
-                      {moods.map((m) => t(`mood.${m}`)).join(", ")}
-                    </span>
-                  )}
-                  {hasMeds && (
-                    <span className="inline-flex items-center gap-1">
-                      <Pill className="h-4 w-4" aria-hidden />
-                      <span className="sr-only">{t("detail.medications")}</span>
-                    </span>
-                  )}
-                  {hasImpact && (
-                    <span className="inline-flex items-center gap-1">
-                      <Activity className="h-4 w-4" aria-hidden />
-                      <span className="sr-only">{t("detail.impact")}</span>
-                    </span>
-                  )}
-                </span>
-                <span className="flex items-center gap-1 text-xs font-medium">
-                  {open ? t("showLess") : t("showMore")}
-                  <ChevronDown
-                    className={cn("h-4 w-4 transition-transform", open && "rotate-180")}
-                  />
-                </span>
-              </Button>
-            </CollapsibleTrigger>
-
-            <CollapsibleContent className="space-y-4 pt-3">
-              {hasQuality && (
-                <div className="space-y-1.5">
-                  <p className="text-xs font-semibold text-muted-foreground">
-                    {t("detail.quality")}
-                  </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {entry.pain_quality!.map((q) => (
-                      <span
-                        key={q}
-                        className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground"
-                      >
-                        {t(`quality.${q}`)}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {hasImpact && (
-                <div className="space-y-1">
-                  <p className="text-xs font-semibold text-muted-foreground">
-                    {t("detail.impact")}
-                  </p>
-                  <p className="text-sm text-foreground/90">{entry.daily_impact}</p>
-                </div>
-              )}
-
-              {hasMood && (
-                <div className="space-y-1">
-                  <p className="text-xs font-semibold text-muted-foreground">
-                    {t("detail.mood")}
-                  </p>
-                  <p className="text-sm text-foreground/90">
-                    {moods.map((m) => t(`mood.${m}`)).join(", ")}
-                  </p>
-                </div>
-              )}
-
-              {hasMeds && (
-                <div className="space-y-1">
-                  <p className="text-xs font-semibold text-muted-foreground">
-                    {t("detail.medications")}
-                  </p>
-                  <p className="text-sm text-foreground/90">{entry.medications}</p>
-                </div>
-              )}
-            </CollapsibleContent>
-          </Collapsible>
+      <Collapsible open={open} onOpenChange={setOpen}>
+        {hasDetail ? (
+          <CollapsibleTrigger asChild>
+            <button
+              type="button"
+              className="flex min-h-[56px] w-full items-start gap-3 rounded-2xl p-4 text-left transition hover:bg-muted/40"
+            >
+              {compact}
+              <ChevronDown
+                className={cn(
+                  "mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-transform",
+                  open && "rotate-180"
+                )}
+              />
+            </button>
+          </CollapsibleTrigger>
+        ) : (
+          <div className="flex min-h-[56px] items-start gap-3 p-4">{compact}</div>
         )}
-      </CardContent>
+
+        <CollapsibleContent className="space-y-4 px-4 pb-4">
+          {hasQuality && (
+            <div className="space-y-1.5">
+              <p className="text-xs font-semibold text-muted-foreground">{t("detail.quality")}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {entry.pain_quality!.map((q) => (
+                  <span
+                    key={q}
+                    className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-secondary-foreground"
+                  >
+                    {t(`quality.${q}`)}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {hasImpact && (
+            <div className="space-y-1">
+              <p className="text-xs font-semibold text-muted-foreground">{t("detail.impact")}</p>
+              <p className="text-sm text-foreground/90">{entry.daily_impact}</p>
+            </div>
+          )}
+
+          {hasMood && (
+            <div className="space-y-1">
+              <p className="text-xs font-semibold text-muted-foreground">{t("detail.mood")}</p>
+              <p className="text-sm text-foreground/90">
+                {moods.map((m) => t(`mood.${m}`)).join(", ")}
+              </p>
+            </div>
+          )}
+
+          {hasMeds && (
+            <div className="space-y-1">
+              <p className="text-xs font-semibold text-muted-foreground">
+                {t("detail.medications")}
+              </p>
+              <p className="text-sm text-foreground/90">{entry.medications}</p>
+            </div>
+          )}
+        </CollapsibleContent>
+      </Collapsible>
     </Card>
   );
 }

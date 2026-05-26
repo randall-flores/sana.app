@@ -144,6 +144,9 @@
       "mood": "Estado de ánimo",
       "medications": "Medicamentos",
       "impact": "Impacto"
+    },
+    "list": {
+      "noAreas": "Sin zonas registradas"
     }
   },
   "report": {
