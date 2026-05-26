@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Check, ChevronDown, Minus, TrendingDown, TrendingUp } from "lucide-react";
+import { Check, ChevronDown, LineChart, Minus, TrendingDown, TrendingUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Collapsible,
@@ -11,7 +11,13 @@ import {
 } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { painBadgeClasses, painSeverity } from "@/lib/pain";
-import { computeOverview, dayKey, type DayPoint, type Direction } from "@/lib/journalStats";
+import {
+  computeOverview,
+  dayKey,
+  MIN_TREND_DAYS,
+  type DayPoint,
+  type Direction,
+} from "@/lib/journalStats";
 import { labelFor, REGION_LABELS } from "@/components/journal/BodyPainMap";
 import { useJournalSelection } from "./JournalSelectionProvider";
 
@@ -393,7 +399,7 @@ export function JournalList({ entries }: { entries: JournalRow[] }) {
     mid: "var(--color-pain-mid)",
     high: "var(--color-pain-high)",
   }[avgSev];
-  const hasTrend = overview.dailySeries.some((p) => p.avg !== null);
+  const hasTrend = overview.daysWithData >= MIN_TREND_DAYS;
 
   return (
     <div className="space-y-6">
@@ -437,7 +443,10 @@ export function JournalList({ entries }: { entries: JournalRow[] }) {
                 color={lineColor}
               />
             ) : (
-              <p className="text-sm text-muted-foreground">{t("list.trendEmpty")}</p>
+              <div className="flex items-center gap-2 py-2 text-sm text-muted-foreground">
+                <LineChart className="h-4 w-4 shrink-0" aria-hidden />
+                <span>{t("list.trendSparse")}</span>
+              </div>
             )}
           </CardContent>
         </Card>

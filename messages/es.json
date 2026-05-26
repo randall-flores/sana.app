@@ -156,6 +156,7 @@
       "statAvg": "Dolor prom.",
       "trendCaption": "Dolor en los últimos 14 días",
       "trendEmpty": "Aún no hay datos recientes para graficar.",
+      "trendSparse": "Sigue registrando para ver tu tendencia",
       "dirEasing": "Mejorando",
       "dirSteady": "Estable",
       "dirWorsening": "Empeorando"

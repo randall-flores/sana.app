@@ -156,6 +156,7 @@
       "statAvg": "Avg pain",
       "trendCaption": "Pain over the last 14 days",
       "trendEmpty": "Not enough recent data to chart.",
+      "trendSparse": "Keep logging to see your trend",
       "dirEasing": "Easing",
       "dirSteady": "Steady",
       "dirWorsening": "Worsening"

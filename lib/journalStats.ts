@@ -14,7 +14,13 @@ export type Overview = {
   direction: Direction;
   dailySeries: DayPoint[]; // last 14 days, oldest → newest
   worstIndex: number; // index into dailySeries of the highest avg, or -1
+  daysWithData: number; // distinct days with an entry inside the 14-day window
 };
+
+// Minimum distinct days (within the window) before a trend line is meaningful.
+// Below this, the UI/PDF show a "keep logging" placeholder instead of a chart.
+// Shared so the screen and the PDF apply the identical rule.
+export const MIN_TREND_DAYS = 4;
 
 type StatEntry = { created_at: string; pain_level: number };
 
@@ -59,12 +65,16 @@ export function computeOverview(entries: StatEntry[], now: Date): Overview {
 
   let worstIndex = -1;
   let worstVal = -Infinity;
+  let daysWithData = 0;
   dailySeries.forEach((p, i) => {
-    if (p.avg !== null && p.avg > worstVal) {
-      worstVal = p.avg;
-      worstIndex = i;
+    if (p.avg !== null) {
+      daysWithData++;
+      if (p.avg > worstVal) {
+        worstVal = p.avg;
+        worstIndex = i;
+      }
     }
   });
 
-  return { count, avg, direction, dailySeries, worstIndex };
+  return { count, avg, direction, dailySeries, worstIndex, daysWithData };
 }
