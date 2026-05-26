@@ -12,51 +12,30 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { DateRangeControls } from "@/components/journal/DateRangeControls";
+import { computeRange, type RangePreset } from "@/lib/dateRange";
 import { getReportData } from "./report-actions";
 import { generateAndDownload } from "./reportClient";
-
-type Preset = "7" | "30" | "all" | "custom";
 
 export function DownloadReportDialog() {
   const t = useTranslations("report");
   const [open, setOpen] = useState(false);
-  const [preset, setPreset] = useState<Preset>("7");
+  const [preset, setPreset] = useState<RangePreset>("7");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const presets: { key: Preset; label: string }[] = [
+  const presets: { key: RangePreset; label: string }[] = [
     { key: "7", label: t("preset7") },
     { key: "30", label: t("preset30") },
     { key: "all", label: t("presetAll") },
     { key: "custom", label: t("presetCustom") },
   ];
 
-  function computeRange(): { from: string | null; to: string | null } | "incomplete" {
-    if (preset === "all") return { from: null, to: null };
-    if (preset === "custom") {
-      if (!from || !to) return "incomplete";
-      return {
-        from: new Date(`${from}T00:00:00`).toISOString(),
-        to: new Date(`${to}T23:59:59.999`).toISOString(),
-      };
-    }
-    const days = preset === "7" ? 7 : 30;
-    const end = new Date();
-    end.setHours(23, 59, 59, 999);
-    const start = new Date();
-    start.setDate(start.getDate() - (days - 1));
-    start.setHours(0, 0, 0, 0);
-    return { from: start.toISOString(), to: end.toISOString() };
-  }
-
   async function onGenerate() {
     setError(null);
-    const range = computeRange();
+    const range = computeRange(preset, from, to);
     if (range === "incomplete") {
       setError(t("customIncomplete"));
       return;
@@ -102,54 +81,18 @@ export function DownloadReportDialog() {
           <DialogDescription>{t("dialogDescription")}</DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-2 gap-2">
-          {presets.map(({ key, label }) => {
-            const active = preset === key;
-            return (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setPreset(key)}
-                aria-pressed={active}
-                className={cn(
-                  "flex min-h-[56px] items-center justify-center rounded-xl px-4 text-center text-sm font-medium transition",
-                  active
-                    ? "border-2 border-primary bg-primary/10 text-foreground"
-                    : "border border-border text-muted-foreground hover:border-primary/60"
-                )}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
-
-        {preset === "custom" && (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="report-from">{t("from")}</Label>
-              <Input
-                id="report-from"
-                type="date"
-                value={from}
-                max={to || undefined}
-                onChange={(e) => setFrom(e.target.value)}
-                className="h-14 rounded-xl"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="report-to">{t("to")}</Label>
-              <Input
-                id="report-to"
-                type="date"
-                value={to}
-                min={from || undefined}
-                onChange={(e) => setTo(e.target.value)}
-                className="h-14 rounded-xl"
-              />
-            </div>
-          </div>
-        )}
+        <DateRangeControls
+          presets={presets}
+          preset={preset}
+          onPreset={setPreset}
+          from={from}
+          setFrom={setFrom}
+          to={to}
+          setTo={setTo}
+          fromLabel={t("from")}
+          toLabel={t("to")}
+          idPrefix="report"
+        />
 
         {error && (
           <p role="alert" className="text-sm text-destructive">

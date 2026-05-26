@@ -2,15 +2,24 @@
 
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Check, ChevronDown, LineChart, Minus, TrendingDown, TrendingUp } from "lucide-react";
+import { CalendarRange, Check, ChevronDown, LineChart, Minus, TrendingDown, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { painBadgeClasses, painSeverity } from "@/lib/pain";
+import { computeRange, type Range, type RangePreset } from "@/lib/dateRange";
 import {
   computeOverview,
   dayKey,
@@ -18,6 +27,7 @@ import {
   type DayPoint,
   type Direction,
 } from "@/lib/journalStats";
+import { DateRangeControls } from "@/components/journal/DateRangeControls";
 import { labelFor, REGION_LABELS } from "@/components/journal/BodyPainMap";
 import { useJournalSelection } from "./JournalSelectionProvider";
 
@@ -277,14 +287,29 @@ function EntryCard({
   );
 }
 
-type Filter = "all" | "severe" | "week" | "area";
+type Filter = "all" | "severe" | "week" | "area" | "dates";
 
 export function JournalList({ entries }: { entries: JournalRow[] }) {
   const t = useTranslations("journal");
+  const tr = useTranslations("report"); // reuse the report's date-range strings
   const locale = useLocale() as "en" | "es";
 
   const [filter, setFilter] = useState<Filter>("all");
   const [areaFilter, setAreaFilter] = useState<string | null>(null);
+
+  // Date-range filter (mirrors the report download's preset/custom pattern).
+  const [dateOpen, setDateOpen] = useState(false);
+  const [datePreset, setDatePreset] = useState<RangePreset>("7");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [dateError, setDateError] = useState<string | null>(null);
+  const [appliedRange, setAppliedRange] = useState<Range | null>(null);
+
+  const clearFilter = (f: Filter) => {
+    setFilter(f);
+    setAreaFilter(null);
+    if (f !== "dates") setAppliedRange(null);
+  };
 
   // Date grouping depends on the browser timezone, which the server doesn't
   // know — render only on the client so SSR and client agree (no hydration drift).
@@ -314,8 +339,16 @@ export function JournalList({ entries }: { entries: JournalRow[] }) {
     }
     if (filter === "area" && areaFilter)
       return entries.filter((e) => e.pain_locations?.includes(areaFilter));
+    if (filter === "dates" && appliedRange) {
+      const lo = appliedRange.from ? new Date(appliedRange.from).getTime() : -Infinity;
+      const hi = appliedRange.to ? new Date(appliedRange.to).getTime() : Infinity;
+      return entries.filter((e) => {
+        const ts = new Date(e.created_at).getTime();
+        return ts >= lo && ts <= hi;
+      });
+    }
     return entries;
-  }, [entries, filter, areaFilter]);
+  }, [entries, filter, areaFilter, appliedRange]);
 
   const view = useMemo(() => {
     const groups = new Map<string, JournalRow[]>();
@@ -384,6 +417,19 @@ export function JournalList({ entries }: { entries: JournalRow[] }) {
       {label}
     </button>
   );
+
+  const applyDates = () => {
+    const range = computeRange(datePreset, dateFrom, dateTo);
+    if (range === "incomplete") {
+      setDateError(tr("customIncomplete"));
+      return;
+    }
+    setDateError(null);
+    setAppliedRange(range);
+    setFilter("dates");
+    setAreaFilter(null);
+    setDateOpen(false);
+  };
 
   // Overview presentation: direction word/icon/color + trend line color.
   const dirMeta: Record<Direction, { Icon: typeof Minus; cls: string; key: string }> = {
@@ -454,23 +500,66 @@ export function JournalList({ entries }: { entries: JournalRow[] }) {
 
       {/* Filter pills */}
       <div className="flex flex-wrap gap-2">
-        {pill("all", t("list.filterAll"), () => {
-          setFilter("all");
-          setAreaFilter(null);
-        })}
-        {pill("severe", t("list.filterSevere"), () => {
-          setFilter("severe");
-          setAreaFilter(null);
-        })}
-        {pill("week", t("list.filterWeek"), () => {
-          setFilter("week");
-          setAreaFilter(null);
-        })}
+        {pill("all", t("list.filterAll"), () => clearFilter("all"))}
+        {pill("severe", t("list.filterSevere"), () => clearFilter("severe"))}
+        {pill("week", t("list.filterWeek"), () => clearFilter("week"))}
         {allAreas.length > 0 &&
           pill("area", t("list.filterArea"), () => {
-            setFilter("area");
+            clearFilter("area");
             setAreaFilter(allAreas[0]!);
           })}
+        <Dialog
+          open={dateOpen}
+          onOpenChange={(o) => {
+            setDateOpen(o);
+            if (!o) setDateError(null);
+          }}
+        >
+          <DialogTrigger asChild>
+            <button
+              type="button"
+              aria-pressed={filter === "dates"}
+              className={cn(
+                "inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full px-4 text-sm font-medium transition",
+                filter === "dates"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+              )}
+            >
+              <CalendarRange className="h-4 w-4" aria-hidden />
+              {t("list.filterDates")}
+            </button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{t("list.filterDates")}</DialogTitle>
+            </DialogHeader>
+            <DateRangeControls
+              presets={[
+                { key: "7", label: tr("preset7") },
+                { key: "30", label: tr("preset30") },
+                { key: "custom", label: tr("presetCustom") },
+              ]}
+              preset={datePreset}
+              onPreset={setDatePreset}
+              from={dateFrom}
+              setFrom={setDateFrom}
+              to={dateTo}
+              setTo={setDateTo}
+              fromLabel={tr("from")}
+              toLabel={tr("to")}
+              idPrefix="filter"
+            />
+            {dateError && (
+              <p role="alert" className="text-sm text-destructive">
+                {dateError}
+              </p>
+            )}
+            <Button onClick={applyDates} className="h-[56px] w-full text-base">
+              {t("list.apply")}
+            </Button>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Area selector (only in "By area" mode) */}

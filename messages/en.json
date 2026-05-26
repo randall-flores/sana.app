@@ -151,6 +151,8 @@
       "filterSevere": "Severe 7+",
       "filterWeek": "This week",
       "filterArea": "By area",
+      "filterDates": "Dates",
+      "apply": "Apply",
       "emptyFiltered": "No entries match this filter.",
       "statEntries": "Entries logged",
       "statAvg": "Avg pain",

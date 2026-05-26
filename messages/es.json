@@ -151,6 +151,8 @@
       "filterSevere": "Severo 7+",
       "filterWeek": "Esta semana",
       "filterArea": "Por zona",
+      "filterDates": "Fechas",
+      "apply": "Aplicar",
       "emptyFiltered": "Ningún registro coincide con este filtro.",
       "statEntries": "Registros",
       "statAvg": "Dolor prom.",
