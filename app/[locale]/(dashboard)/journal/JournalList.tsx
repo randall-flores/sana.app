@@ -1,9 +1,31 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useMemo, useState, useSyncExternalStore, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { CalendarRange, Check, ChevronDown, LineChart, Minus, TrendingDown, TrendingUp } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import {
+  CalendarRange,
+  Check,
+  ChevronDown,
+  LineChart,
+  Minus,
+  Trash2,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
+import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Collapsible,
@@ -29,6 +51,7 @@ import {
 } from "@/lib/journalStats";
 import { DateRangeControls } from "@/components/journal/DateRangeControls";
 import { labelFor, REGION_LABELS } from "@/components/journal/BodyPainMap";
+import { deleteJournalEntry } from "./actions";
 import { useJournalSelection } from "./JournalSelectionProvider";
 
 export type JournalRow = {
@@ -138,6 +161,25 @@ function EntryCard({
   const hasDetail = hasQuality || hasImpact || hasMood || hasMeds;
   const selected = isSelected(entry.id);
 
+  const router = useRouter();
+  const [deleting, startDelete] = useTransition();
+  const [delOpen, setDelOpen] = useState(false);
+  const entryDate = new Intl.DateTimeFormat(locale, {
+    dateStyle: "long",
+    timeStyle: "short",
+  }).format(new Date(entry.created_at));
+  const onDelete = () =>
+    startDelete(async () => {
+      const res = await deleteJournalEntry(entry.id);
+      if (res.ok) {
+        setDelOpen(false);
+        toast.success(t("list.deleted"));
+        router.refresh();
+      } else {
+        toast.error(t("list.deleteError"));
+      }
+    });
+
   // Localized area labels (hybrid: body-map keys → labelFor, legacy → messages).
   const areaLabels = (entry.pain_locations ?? []).map((loc) =>
     loc in REGION_LABELS ? labelFor(loc, locale) : t(`locations.${loc}`)
@@ -221,24 +263,20 @@ function EntryCard({
   return (
     <Card className="rounded-2xl border-border/70 shadow-sm">
       <Collapsible open={open} onOpenChange={setOpen}>
-        {hasDetail ? (
-          <CollapsibleTrigger asChild>
-            <button
-              type="button"
-              className="flex min-h-[56px] w-full items-start gap-3 rounded-2xl p-4 text-left transition hover:bg-muted/40"
-            >
-              {compact}
-              <ChevronDown
-                className={cn(
-                  "mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-transform",
-                  open && "rotate-180"
-                )}
-              />
-            </button>
-          </CollapsibleTrigger>
-        ) : (
-          <div className="flex min-h-[56px] items-start gap-3 p-4">{compact}</div>
-        )}
+        <CollapsibleTrigger asChild>
+          <button
+            type="button"
+            className="flex min-h-[56px] w-full items-start gap-3 rounded-2xl p-4 text-left transition hover:bg-muted/40"
+          >
+            {compact}
+            <ChevronDown
+              className={cn(
+                "mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-transform",
+                open && "rotate-180"
+              )}
+            />
+          </button>
+        </CollapsibleTrigger>
 
         <CollapsibleContent className="space-y-4 px-4 pb-4">
           {hasQuality && (
@@ -281,6 +319,44 @@ function EntryCard({
               <p className="text-sm text-foreground/90">{entry.medications}</p>
             </div>
           )}
+
+          {/* Delete — entries are immutable (no edit); delete-only, tucked in the expanded view. */}
+          <div className="flex justify-end border-t border-border/50 pt-3">
+            <AlertDialog open={delOpen} onOpenChange={setDelOpen}>
+              <AlertDialogTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  {t("list.delete")}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t("list.deleteTitle")}</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {t("list.deleteConfirm", { date: entryDate })}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={deleting}>{t("list.cancel")}</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onDelete();
+                    }}
+                    disabled={deleting}
+                    className={cn(buttonVariants({ variant: "destructive" }), "h-11 px-4")}
+                  >
+                    {deleting ? t("list.deleting") : t("list.deleteCta")}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </CollapsibleContent>
       </Collapsible>
     </Card>

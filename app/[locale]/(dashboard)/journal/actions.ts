@@ -48,3 +48,20 @@ export async function createJournalEntry(input: JournalEntryInput): Promise<Acti
   revalidatePath("/[locale]/journal", "page");
   return { ok: true };
 }
+
+// Delete a single entry. Entries are immutable by design (no edit) — delete only.
+// RLS policy journal_delete_own scopes this to the owner, so a guessed id from
+// another user is rejected at the database, not just here.
+export async function deleteJournalEntry(id: string): Promise<ActionResult> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "unauthorized" };
+
+  const { error } = await supabase.from("journal_entries").delete().eq("id", id);
+  if (error) return { ok: false, error: "generic" };
+
+  revalidatePath("/[locale]/journal", "page");
+  return { ok: true };
+}
