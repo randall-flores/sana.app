@@ -118,3 +118,10 @@
   fill: rgba(67, 102, 82, 0.28);
   stroke: rgba(67, 102, 82, 0.9);
 }
+/* L/R side markers on each figure — subtle, non-interactive. */
+.body-map-marker {
+  font: 700 11px system-ui, -apple-system, sans-serif;
+  fill: rgba(67, 102, 82, 0.55);
+  pointer-events: none;
+  user-select: none;
+}

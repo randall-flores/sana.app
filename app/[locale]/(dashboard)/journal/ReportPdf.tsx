@@ -12,7 +12,7 @@ import {
   pdf,
 } from "@react-pdf/renderer";
 import { painSeverity } from "@/lib/pain";
-import { NEUTRAL_FRONT } from "@/components/journal/BodyPainPaths";
+import { NEUTRAL_FRONT, NEUTRAL_BACK, type Region } from "@/components/journal/BodyPainPaths";
 
 // Register the app's fonts as static TTFs so accented Spanish (ñ á é í ó ú ü ¿ ¡)
 // renders correctly instead of falling back to Helvetica/tofu.
@@ -114,7 +114,8 @@ const styles = StyleSheet.create({
   fieldLabel: { fontSize: 8, color: MUTED, fontWeight: 600, textTransform: "uppercase" },
   fieldValue: { fontSize: 10, color: INK },
   locationRow: { flexDirection: "row", alignItems: "flex-start", marginTop: 4 },
-  bodyFigure: { marginRight: 10 },
+  bodyFigure: { flexDirection: "row", marginRight: 10 },
+  bodyFigureFront: { marginRight: 4 },
   locationText: { flex: 1 },
   footer: {
     position: "absolute",
@@ -139,11 +140,18 @@ function Field({ field }: { field: ReportField }) {
 // Static print snapshot of the body map. Selected regions fill sage; the rest
 // render as a faint outline. No interactivity — fill/stroke are Path props
 // (react-pdf SVG primitives don't read CSS classes).
-function BodyFigure({ selected }: { selected: string[] }) {
-  const on = new Set(selected);
+function FigureSvg({
+  regions,
+  on,
+  style,
+}: {
+  regions: Region[];
+  on: Set<string>;
+  style?: (typeof styles)[keyof typeof styles];
+}) {
   return (
-    <Svg width={40} height={113} viewBox="0 0 120 340" style={styles.bodyFigure}>
-      {NEUTRAL_FRONT.map((r) => {
+    <Svg width={34} height={96} viewBox="0 0 120 340" style={style}>
+      {regions.map((r) => {
         const sel = on.has(r.location);
         return (
           <Path
@@ -158,6 +166,17 @@ function BodyFigure({ selected }: { selected: string[] }) {
         );
       })}
     </Svg>
+  );
+}
+
+// Front + back snapshot side by side, so back-only selections still show.
+function BodyFigure({ selected }: { selected: string[] }) {
+  const on = new Set(selected);
+  return (
+    <View style={styles.bodyFigure}>
+      <FigureSvg regions={NEUTRAL_FRONT} on={on} style={styles.bodyFigureFront} />
+      <FigureSvg regions={NEUTRAL_BACK} on={on} />
+    </View>
   );
 }
 
