@@ -2,6 +2,7 @@ import { createTranslator } from "next-intl";
 import enMessages from "@/messages/en.json";
 import esMessages from "@/messages/es.json";
 import { labelFor, REGION_LABELS } from "@/components/journal/BodyPainMap";
+import { computeOverview } from "@/lib/journalStats";
 import type { ReportResult, ReportRow } from "./report-actions";
 import type { ReportData, ReportEntryVM } from "./ReportPdf";
 
@@ -116,6 +117,15 @@ export function buildReportData(res: OkResult): ReportData {
     groups[groups.length - 1]!.entries.push(entryVM(e));
   }
 
+  // Same computeOverview the screen uses → identical numbers; pre-localized for the PDF.
+  const ov = computeOverview(
+    entries.map((e) => ({ created_at: e.created_at, pain_level: e.pain_level })),
+    new Date()
+  );
+  const dirKey = { easing: "dirEasing", steady: "dirSteady", worsening: "dirWorsening" }[
+    ov.direction
+  ];
+
   return {
     title: tr("reportTitle"),
     fullName: res.fullName,
@@ -124,6 +134,21 @@ export function buildReportData(res: OkResult): ReportData {
     summary,
     footer: tr("footer"),
     pageLabel: (messages.report as Record<string, string>).pageNumber ?? "Page {n} of {total}",
+    overview: {
+      count: ov.count,
+      avg: ov.avg,
+      direction: ov.direction,
+      directionLabel: tj(`list.${dirKey}`),
+      dailySeries: ov.dailySeries.map((p) => p.avg),
+      worstIndex: ov.worstIndex,
+      daysWithData: ov.daysWithData,
+      labels: {
+        entries: tj("list.statEntries"),
+        avg: tj("list.statAvg"),
+        trend: tj("list.trendCaption"),
+        sparse: tj("list.trendSparse"),
+      },
+    },
     groups,
   };
 }

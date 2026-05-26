@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Circle,
   Document,
   Font,
   Page,
@@ -12,6 +13,7 @@ import {
   pdf,
 } from "@react-pdf/renderer";
 import { painSeverity } from "@/lib/pain";
+import { MIN_TREND_DAYS, type Direction } from "@/lib/journalStats";
 import { NEUTRAL_FRONT, NEUTRAL_BACK, type Region } from "@/components/journal/BodyPainPaths";
 
 // Register the app's fonts as static TTFs so accented Spanish (ñ á é í ó ú ü ¿ ¡)
@@ -49,6 +51,18 @@ export type ReportEntryVM = {
   meds?: ReportField;
 };
 
+// Mirrors lib/journalStats Overview, flattened + pre-localized for the PDF.
+export type ReportOverview = {
+  count: number;
+  avg: number;
+  direction: Direction;
+  directionLabel: string;
+  dailySeries: (number | null)[]; // 14 daily averages, oldest → newest
+  worstIndex: number;
+  daysWithData: number;
+  labels: { entries: string; avg: string; trend: string; sparse: string };
+};
+
 export type ReportData = {
   title: string;
   fullName: string;
@@ -57,6 +71,7 @@ export type ReportData = {
   summary: string;
   footer: string;
   pageLabel: string; // raw template containing {n} and {total}
+  overview: ReportOverview;
   groups: Array<{ heading: string; entries: ReportEntryVM[] }>;
 };
 
@@ -117,6 +132,15 @@ const styles = StyleSheet.create({
   bodyFigure: { flexDirection: "row", marginRight: 10 },
   bodyFigureFront: { marginRight: 4 },
   locationText: { flex: 1 },
+  overview: { marginBottom: 18 },
+  overviewStats: { flexDirection: "row", marginBottom: 10 },
+  stat: { marginRight: 28 },
+  statLabel: { fontSize: 8, color: MUTED, fontWeight: 600, textTransform: "uppercase", marginBottom: 2 },
+  statValueRow: { flexDirection: "row", alignItems: "baseline" },
+  statValue: { fontSize: 16, fontWeight: 600, color: INK },
+  statDir: { fontSize: 9, fontWeight: 600, marginLeft: 6 },
+  trendCaption: { fontSize: 8, color: MUTED, fontWeight: 600, textTransform: "uppercase", marginBottom: 4 },
+  trendSparse: { fontSize: 9, color: MUTED },
   footer: {
     position: "absolute",
     bottom: 28,
@@ -180,6 +204,82 @@ function BodyFigure({ selected }: { selected: string[] }) {
   );
 }
 
+const dirColor = (d: Direction) => (d === "easing" ? SAGE : d === "worsening" ? "#B3261E" : MUTED);
+
+// 14-day trend, drawn with react-pdf SVG primitives (Path/Circle). Breaks the
+// line on no-entry days; isolated days render as a dot; worst day marked.
+function TrendChart({ ov }: { ov: ReportOverview }) {
+  const W = 240;
+  const H = 44;
+  const pad = 4;
+  const n = ov.dailySeries.length;
+  const x = (i: number) => pad + (i / (n - 1)) * (W - 2 * pad);
+  const y = (v: number) => H - pad - (v / 10) * (H - 2 * pad);
+  const color = painColor(ov.avg);
+
+  const segs: { i: number; v: number }[][] = [];
+  let cur: { i: number; v: number }[] = [];
+  ov.dailySeries.forEach((v, i) => {
+    if (v === null) {
+      if (cur.length) segs.push(cur);
+      cur = [];
+    } else {
+      cur.push({ i, v });
+    }
+  });
+  if (cur.length) segs.push(cur);
+
+  const worstV = ov.worstIndex >= 0 ? ov.dailySeries[ov.worstIndex] : null;
+
+  return (
+    <Svg width={W} height={H} viewBox={`0 0 ${W} ${H}`}>
+      {segs.map((seg, si) =>
+        seg.length === 1 ? (
+          <Circle key={si} cx={x(seg[0]!.i)} cy={y(seg[0]!.v)} r={2} fill={color} />
+        ) : (
+          <Path
+            key={si}
+            d={"M " + seg.map((p) => `${x(p.i)} ${y(p.v)}`).join(" L ")}
+            stroke={color}
+            strokeWidth={1.5}
+            fill="none"
+          />
+        )
+      )}
+      {ov.worstIndex >= 0 && worstV != null && (
+        <Circle cx={x(ov.worstIndex)} cy={y(worstV)} r={3} fill={color} stroke="white" strokeWidth={1} />
+      )}
+    </Svg>
+  );
+}
+
+function OverviewBlock({ ov }: { ov: ReportOverview }) {
+  const hasTrend = ov.daysWithData >= MIN_TREND_DAYS;
+  return (
+    <View style={styles.overview}>
+      <View style={styles.overviewStats}>
+        <View style={styles.stat}>
+          <Text style={styles.statLabel}>{ov.labels.entries}</Text>
+          <Text style={styles.statValue}>{ov.count}</Text>
+        </View>
+        <View style={styles.stat}>
+          <Text style={styles.statLabel}>{ov.labels.avg}</Text>
+          <View style={styles.statValueRow}>
+            <Text style={[styles.statValue, { color: painColor(ov.avg) }]}>{ov.avg.toFixed(1)}</Text>
+            <Text style={[styles.statDir, { color: dirColor(ov.direction) }]}>{ov.directionLabel}</Text>
+          </View>
+        </View>
+      </View>
+      <Text style={styles.trendCaption}>{ov.labels.trend}</Text>
+      {hasTrend ? (
+        <TrendChart ov={ov} />
+      ) : (
+        <Text style={styles.trendSparse}>{ov.labels.sparse}</Text>
+      )}
+    </View>
+  );
+}
+
 export function ReportDocument({ data }: { data: ReportData }) {
   return (
     <Document>
@@ -193,6 +293,8 @@ export function ReportDocument({ data }: { data: ReportData }) {
 
         <View style={styles.divider} />
         <Text style={styles.summary}>{data.summary}</Text>
+
+        <OverviewBlock ov={data.overview} />
 
         {data.groups.map((group, gi) => (
           <View key={gi} style={styles.group}>
