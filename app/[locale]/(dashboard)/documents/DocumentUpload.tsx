@@ -104,7 +104,7 @@ export function DocumentUpload({ userId, caseId }: { userId: string; caseId: str
           <UploadCloud className="h-6 w-6 text-primary" aria-hidden />
         </span>
         <p className="hidden text-sm text-muted-foreground sm:block">
-          {t("dropTitle")} <span className="text-muted-foreground/70">{t("dropOr")}</span>
+          {t("dropTitle")} <span>{t("dropOr")}</span>
         </p>
         <Button
           type="button"
@@ -125,7 +125,7 @@ export function DocumentUpload({ userId, caseId }: { userId: string; caseId: str
       {/* Per-file status queue. Rendered unconditionally so the aria-live region
           already exists when the first item appears — AT only announces mutations
           to a region that was already in the DOM. */}
-      <ul className="space-y-2 empty:hidden" aria-live="polite">
+      <ul className="space-y-2" aria-live="polite">
         {queue.map((it) => (
             <li
               key={it.id}
@@ -141,9 +141,7 @@ export function DocumentUpload({ userId, caseId }: { userId: string; caseId: str
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm text-foreground">{it.name}</p>
                 {it.status === "error" && it.error && (
-                  <p role="alert" className="text-xs text-destructive">
-                    {t(`error.${it.error}`)}
-                  </p>
+                  <p className="text-xs text-destructive">{t(`error.${it.error}`)}</p>
                 )}
               </div>
               <span
