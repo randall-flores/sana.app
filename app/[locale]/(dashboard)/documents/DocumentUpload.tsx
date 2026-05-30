@@ -86,18 +86,9 @@ export function DocumentUpload({ userId, caseId }: { userId: string; caseId: str
         tabIndex={-1}
       />
 
-      {/* Dropzone: big tap area (phones) + drag-drop (desktop). */}
+      {/* Dropzone: drag-drop target (desktop). The button is the control; the
+          surrounding dashed area accepts dropped files. */}
       <div
-        role="button"
-        tabIndex={0}
-        aria-label={t("add")}
-        onClick={openPicker}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            openPicker();
-          }
-        }}
         onDragOver={(e) => {
           e.preventDefault();
           if (!busy) setDragging(true);
@@ -105,8 +96,8 @@ export function DocumentUpload({ userId, caseId }: { userId: string; caseId: str
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
         className={cn(
-          "flex cursor-pointer flex-col items-center gap-3 rounded-2xl border-2 border-dashed p-8 text-center outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
-          dragging ? "border-primary bg-primary/5" : "border-border/70 hover:border-primary/50",
+          "flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed p-8 text-center transition-colors",
+          dragging ? "border-primary bg-primary/5" : "border-border/70",
         )}
       >
         <span className="rounded-2xl bg-primary/10 p-3">
@@ -118,11 +109,7 @@ export function DocumentUpload({ userId, caseId }: { userId: string; caseId: str
         <Button
           type="button"
           disabled={busy}
-          // The dropzone handles the click; keep the button visual without double-firing.
-          onClick={(e) => {
-            e.stopPropagation();
-            openPicker();
-          }}
+          onClick={openPicker}
           className="h-14 w-full gap-2 text-base sm:w-auto sm:px-8"
         >
           {busy ? (
