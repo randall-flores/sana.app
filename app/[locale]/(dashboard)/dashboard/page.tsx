@@ -31,7 +31,7 @@ export default async function DashboardPage({
 
   const cards = [
     { icon: NotebookPen, title: t("journalTitle"), href: "/journal" as const, cta: t("journalCta") },
-    { icon: FileText, title: t("documentsTitle"), href: null, cta: t("comingSoon") },
+    { icon: FileText, title: t("documentsTitle"), href: "/documents" as const, cta: t("documentsCta") },
     { icon: Scale, title: t("caseTitle"), href: null, cta: t("comingSoon") },
   ];
 

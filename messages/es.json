@@ -80,6 +80,7 @@
     "journalTitle": "Tu diario",
     "journalCta": "Abre tu diario",
     "documentsTitle": "Tus documentos",
+    "documentsCta": "Agrega tus documentos",
     "caseTitle": "Estado de tu caso",
     "comingSoon": "Próximamente"
   },
@@ -198,6 +199,24 @@
     "summaryHigh": "Dolor máximo {max}",
     "footer": "Generado por Sana — estos son los registros contemporáneos del propio paciente.",
     "pageNumber": "Página {n} de {total}"
+  },
+  "documents": {
+    "title": "Tus documentos",
+    "subtitle": "Fotos, cuentas y reportes — a salvo en un solo lugar.",
+    "add": "Agregar documento",
+    "adding": "Subiendo…",
+    "uploadingFile": "Subiendo {name}…",
+    "hint": "Fotos o PDF, hasta 10 MB cada uno.",
+    "empty": "Aún no hay documentos. Agrega la foto de una cuenta, un reporte o lo que importe para tu caso.",
+    "noCase": "No encontramos tu caso. Termina la configuración primero.",
+    "added": "{count, plural, one {# documento agregado} other {# documentos agregados}}",
+    "error": {
+      "unsupported_type": "Ese tipo de archivo no es compatible. Agrega una foto (JPG, PNG, HEIC o WebP) o un PDF.",
+      "too_large": "Ese archivo es muy grande. Cada archivo puede pesar hasta 10 MB.",
+      "compress_failed": "No pudimos procesar esa imagen. Intenta con otra.",
+      "upload_failed": "La subida no se completó. Revisa tu conexión e inténtalo de nuevo.",
+      "insert_failed": "Algo salió mal al guardar ese documento. Inténtalo de nuevo."
+    }
   },
   "nav": {
     "journal": "Diario",
