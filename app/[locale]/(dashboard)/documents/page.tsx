@@ -1,15 +1,17 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
-import { FileText, Image as ImageIcon } from "lucide-react";
+import { FileText, Image as ImageIcon, FolderOpen } from "lucide-react";
 import { redirect } from "@/lib/i18n/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Card, CardContent } from "@/components/ui/card";
 import { BottomTabBar } from "@/components/BottomTabBar";
+import { formatFileSize } from "@/lib/formatFileSize";
 import { DocumentUpload } from "./DocumentUpload";
 
 type DocRow = {
   id: string;
   file_name: string;
   mime_type: string;
+  file_size: number;
   created_at: string;
 };
 
@@ -43,7 +45,7 @@ export default async function DocumentsPage({
   if (caseRow) {
     const { data } = await supabase
       .from("documents")
-      .select("id, file_name, mime_type, created_at")
+      .select("id, file_name, mime_type, file_size, created_at")
       .eq("case_id", caseRow.id)
       .order("created_at", { ascending: false });
     docs = (data as DocRow[] | null) ?? [];
@@ -71,8 +73,11 @@ export default async function DocumentsPage({
         <section className="mt-10">
           {docs.length === 0 ? (
             <Card className="rounded-2xl border-dashed border-border/70 bg-transparent shadow-none">
-              <CardContent className="p-8 text-center text-muted-foreground">
-                {t("empty")}
+              <CardContent className="flex flex-col items-center gap-3 p-10 text-center">
+                <span className="rounded-2xl bg-primary/10 p-3">
+                  <FolderOpen className="h-6 w-6 text-primary" aria-hidden />
+                </span>
+                <p className="max-w-xs text-balance text-muted-foreground">{t("empty")}</p>
               </CardContent>
             </Card>
           ) : (
@@ -81,7 +86,7 @@ export default async function DocumentsPage({
                 const Icon = d.mime_type === "application/pdf" ? FileText : ImageIcon;
                 return (
                   <li key={d.id}>
-                    <Card className="rounded-2xl border-border/70 shadow-sm">
+                    <Card className="rounded-2xl border-border/70 shadow-sm transition-shadow hover:shadow-md">
                       <CardContent className="flex items-center gap-3 p-4">
                         <span className="shrink-0 rounded-xl bg-primary/10 p-2.5">
                           <Icon className="h-5 w-5 text-primary" aria-hidden />
@@ -90,9 +95,14 @@ export default async function DocumentsPage({
                           <p className="truncate text-sm font-medium text-foreground">
                             {d.file_name}
                           </p>
-                          <time className="text-xs text-muted-foreground">
-                            {dateFmt.format(new Date(d.created_at))}
-                          </time>
+                          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+                            <span className="rounded-full bg-secondary px-2 py-0.5 font-medium text-secondary-foreground">
+                              {d.mime_type === "application/pdf" ? t("typePdf") : t("typeImage")}
+                            </span>
+                            <span className="tabular-nums">{formatFileSize(d.file_size)}</span>
+                            <span aria-hidden>·</span>
+                            <time dateTime={d.created_at}>{dateFmt.format(new Date(d.created_at))}</time>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
