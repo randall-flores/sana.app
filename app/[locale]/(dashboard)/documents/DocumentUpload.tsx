@@ -122,10 +122,11 @@ export function DocumentUpload({ userId, caseId }: { userId: string; caseId: str
         <p className="text-sm text-muted-foreground">{t("hint")}</p>
       </div>
 
-      {/* Per-file status queue. */}
-      {queue.length > 0 && (
-        <ul className="space-y-2" aria-live="polite">
-          {queue.map((it) => (
+      {/* Per-file status queue. Rendered unconditionally so the aria-live region
+          already exists when the first item appears — AT only announces mutations
+          to a region that was already in the DOM. */}
+      <ul className="space-y-2 empty:hidden" aria-live="polite">
+        {queue.map((it) => (
             <li
               key={it.id}
               className="flex items-center gap-3 rounded-xl border border-border/70 bg-card px-4 py-3"
@@ -159,8 +160,7 @@ export function DocumentUpload({ userId, caseId }: { userId: string; caseId: str
               </span>
             </li>
           ))}
-        </ul>
-      )}
+      </ul>
     </div>
   );
 }
