@@ -87,23 +87,29 @@ export default async function DashboardPage({
 
         <div className="mt-10 grid gap-4 sm:grid-cols-3">
           {cards.map(({ icon: Icon, title, href, cta }) => {
+            // No href = not built yet (e.g. Case Status). Render inert + muted
+            // with a "Coming soon" badge — visible placeholder, no navigation.
             const card = (
               <Card
                 className={cn(
                   "h-full min-h-[160px] justify-between rounded-2xl border-border/70 shadow-sm",
-                  href && "transition-shadow hover:shadow-md"
+                  href ? "transition-shadow hover:shadow-md" : "opacity-70"
                 )}
               >
                 <CardHeader className="flex flex-col items-start gap-3 space-y-0">
-                  <span className="rounded-2xl bg-primary/10 p-3">
-                    <Icon className="h-6 w-6 text-primary" />
+                  <span className={cn("rounded-2xl p-3", href ? "bg-primary/10" : "bg-muted")}>
+                    <Icon className={cn("h-6 w-6", href ? "text-primary" : "text-muted-foreground")} />
                   </span>
                   <CardTitle className="font-display text-lg font-semibold">{title}</CardTitle>
                 </CardHeader>
-                <CardContent
-                  className={cn("text-sm", href ? "font-medium text-primary" : "text-muted-foreground")}
-                >
-                  {cta}
+                <CardContent>
+                  {href ? (
+                    <span className="text-sm font-medium text-primary">{cta}</span>
+                  ) : (
+                    <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+                      {cta}
+                    </span>
+                  )}
                 </CardContent>
               </Card>
             );
@@ -112,7 +118,10 @@ export default async function DashboardPage({
                 {card}
               </Link>
             ) : (
-              <div key={title}>{card}</div>
+              // Inert: aria-disabled signals not-available to assistive tech.
+              <div key={title} aria-disabled="true">
+                {card}
+              </div>
             );
           })}
         </div>

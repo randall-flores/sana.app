@@ -306,6 +306,7 @@
     "emptyCardCta": "Programar una cita"
   },
   "nav": {
+    "dashboard": "Inicio",
     "journal": "Diario",
     "appointments": "Citas",
     "documents": "Documentos",

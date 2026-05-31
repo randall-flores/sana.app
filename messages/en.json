@@ -306,6 +306,7 @@
     "emptyCardCta": "Schedule an appointment"
   },
   "nav": {
+    "dashboard": "Home",
     "journal": "Journal",
     "appointments": "Appointments",
     "documents": "Documents",

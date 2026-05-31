@@ -1,15 +1,18 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { CalendarDays, FileText, NotebookPen, Scale, User } from "lucide-react";
+import { CalendarDays, FileText, LayoutDashboard, NotebookPen, User } from "lucide-react";
 import { Link, usePathname } from "@/lib/i18n/navigation";
 import { cn } from "@/lib/utils";
 
+// Dashboard first = home base. Case status is not a tab — it has no page yet
+// (it lives on the dashboard as an inert "Coming soon" tile), so routing to it
+// would 404. Five tabs fit cleanly at 375px.
 const tabs = [
+  { href: "/dashboard", labelKey: "dashboard", icon: LayoutDashboard },
   { href: "/journal", labelKey: "journal", icon: NotebookPen },
   { href: "/appointments", labelKey: "appointments", icon: CalendarDays },
   { href: "/documents", labelKey: "documents", icon: FileText },
-  { href: "/case-status", labelKey: "caseStatus", icon: Scale },
   { href: "/profile", labelKey: "profile", icon: User },
 ] as const;
 
