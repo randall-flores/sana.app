@@ -106,7 +106,7 @@ function TrendSparkline({
     <svg
       viewBox={`0 0 ${W} ${H}`}
       preserveAspectRatio="none"
-      className="h-14 w-full"
+      className="block h-14 w-full max-w-full"
       role="img"
       aria-hidden
     >

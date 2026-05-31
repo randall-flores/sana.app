@@ -151,24 +151,26 @@ function FormBody({
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
+            {/* min-w-0 so native date/time controls shrink to the grid track
+                instead of forcing it wider and overlapping at 375px. */}
+            <div className="min-w-0 space-y-2">
               <Label htmlFor="appt-date">{t("dateLabel")}</Label>
               <Input
                 id="appt-date"
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="h-12 rounded-xl"
+                className="h-12 w-full min-w-0 rounded-xl"
               />
             </div>
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <Label htmlFor="appt-time">{t("timeLabel")}</Label>
               <Input
                 id="appt-time"
                 type="time"
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
-                className="h-12 rounded-xl"
+                className="h-12 w-full min-w-0 rounded-xl"
               />
             </div>
           </div>
