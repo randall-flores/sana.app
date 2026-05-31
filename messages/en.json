@@ -241,6 +241,19 @@
       "insert_failed": "Something went wrong saving that document. Please try again."
     }
   },
+  "summary": {
+    "title": "Your recovery",
+    "locked": "Keep logging to unlock your summary. A few check-ins and we'll gather the picture for you.",
+    "invite": "You've logged enough to see the bigger picture. Sana can gather your check-ins into a short recovery summary.",
+    "generate": "Generate summary",
+    "regenerate": "Regenerate",
+    "loading": "Reading your journal…",
+    "showMore": "Read full summary",
+    "showLess": "Show less",
+    "updated": "Updated {time}",
+    "nudge": "{count, plural, one {You've logged # new entry since} other {You've logged # new entries since}}",
+    "error": "Couldn't create your summary right now. Please try again."
+  },
   "nav": {
     "journal": "Journal",
     "documents": "Documents",

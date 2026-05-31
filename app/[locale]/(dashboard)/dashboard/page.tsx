@@ -5,6 +5,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BottomTabBar } from "@/components/BottomTabBar";
 import { cn } from "@/lib/utils";
+import { RecoverySummaryCard, type SummaryData } from "./RecoverySummaryCard";
 
 export default async function DashboardPage({
   params,
@@ -25,6 +26,33 @@ export default async function DashboardPage({
     .select("full_name")
     .eq("id", user.id)
     .maybeSingle();
+
+  // Recovery-summary state: entry count gates the card; the stored summary (if
+  // any) renders immediately so we don't call the model on every dashboard view.
+  const { data: caseRow } = await supabase
+    .from("cases")
+    .select("id")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  let entryCount = 0;
+  let summary: SummaryData | null = null;
+  if (caseRow) {
+    const { count } = await supabase
+      .from("journal_entries")
+      .select("id", { count: "exact", head: true })
+      .eq("case_id", caseRow.id);
+    entryCount = count ?? 0;
+
+    const { data: summaryRow } = await supabase
+      .from("case_summaries")
+      .select("summary_text, entry_count_at_generation, generated_at")
+      .eq("case_id", caseRow.id)
+      .maybeSingle();
+    summary = (summaryRow as SummaryData | null) ?? null;
+  }
 
   const t = await getTranslations("dashboard");
   const firstName = (profile?.full_name ?? "").split(" ")[0] ?? "";
@@ -74,6 +102,10 @@ export default async function DashboardPage({
             );
           })}
         </div>
+
+        {caseRow && (
+          <RecoverySummaryCard initialSummary={summary} entryCount={entryCount} />
+        )}
       </main>
       <BottomTabBar />
     </>
