@@ -252,6 +252,8 @@
     "showLess": "Mostrar menos",
     "updated": "Actualizado {time}",
     "nudge": "{count, plural, one {Has registrado # entrada nueva desde entonces} other {Has registrado # entradas nuevas desde entonces}}",
+    "langMismatch": "Este resumen está en inglés. ¿Generarlo en español?",
+    "langMismatchCta": "Generar en español",
     "error": "No se pudo crear tu resumen ahora. Inténtalo de nuevo."
   },
   "nav": {

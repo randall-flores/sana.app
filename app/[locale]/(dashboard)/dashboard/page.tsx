@@ -48,7 +48,7 @@ export default async function DashboardPage({
 
     const { data: summaryRow } = await supabase
       .from("case_summaries")
-      .select("summary_text, entry_count_at_generation, generated_at")
+      .select("summary_text, language, entry_count_at_generation, generated_at")
       .eq("case_id", caseRow.id)
       .maybeSingle();
     summary = (summaryRow as SummaryData | null) ?? null;

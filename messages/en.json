@@ -252,6 +252,8 @@
     "showLess": "Show less",
     "updated": "Updated {time}",
     "nudge": "{count, plural, one {You've logged # new entry since} other {You've logged # new entries since}}",
+    "langMismatch": "This summary is in Spanish. Generate it in English?",
+    "langMismatchCta": "Generate in English",
     "error": "Couldn't create your summary right now. Please try again."
   },
   "nav": {

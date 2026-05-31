@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { ChevronDown, Loader2, RefreshCw, Sparkles } from "lucide-react";
+import { ChevronDown, Languages, Loader2, RefreshCw, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 
 export type SummaryData = {
   summary_text: string;
+  language: "en" | "es";
   entry_count_at_generation: number;
   generated_at: string;
 };
@@ -42,6 +43,9 @@ export function RecoverySummaryCard({
 
   const unlocked = entryCount >= 3;
   const newSince = summary ? entryCount - summary.entry_count_at_generation : 0;
+  // Summary stored in a different language than the user's current locale. The
+  // language prompt takes priority over the new-entries nudge (more jarring).
+  const langMismatch = summary != null && summary.language !== locale;
 
   const relativeTime = (iso: string) => {
     const diffMs = now - new Date(iso).getTime();
@@ -56,7 +60,12 @@ export function RecoverySummaryCard({
   const generate = () =>
     startTransition(async () => {
       try {
-        const res = await fetch("/api/summary", { method: "POST" });
+        // Send the current locale — the route generates + stores in this language.
+        const res = await fetch("/api/summary", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ language: locale }),
+        });
         const data = await res.json();
         if (res.ok && data.summary) {
           setSummary(data.summary as SummaryData);
@@ -133,10 +142,32 @@ export function RecoverySummaryCard({
               <CollapsibleContent />
             </Collapsible>
 
-            {newSince > 0 && (
-              <p className="rounded-xl bg-secondary px-3 py-2 text-xs font-medium text-secondary-foreground">
-                {t("nudge", { count: newSince })}
-              </p>
+            {/* Language mismatch takes priority over the new-entries nudge. */}
+            {langMismatch ? (
+              <div className="space-y-2 rounded-xl bg-secondary px-3 py-3">
+                <p className="text-sm font-medium text-secondary-foreground">
+                  {t("langMismatch")}
+                </p>
+                <Button
+                  type="button"
+                  onClick={generate}
+                  disabled={pending}
+                  className="h-[56px] w-full gap-2 text-base sm:w-auto sm:px-6"
+                >
+                  {pending ? (
+                    <Loader2 className="h-5 w-5 motion-safe:animate-spin" aria-hidden />
+                  ) : (
+                    <Languages className="h-5 w-5" aria-hidden />
+                  )}
+                  {pending ? t("loading") : t("langMismatchCta")}
+                </Button>
+              </div>
+            ) : (
+              newSince > 0 && (
+                <p className="rounded-xl bg-secondary px-3 py-2 text-xs font-medium text-secondary-foreground">
+                  {t("nudge", { count: newSince })}
+                </p>
+              )
             )}
 
             <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/50 pt-3">

@@ -97,8 +97,20 @@ function buildStructuredData(
   );
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
+    // Requested language = the client's current locale. The navbar toggle only
+    // changes the URL locale + NEXT_LOCALE cookie, NOT profiles.preferred_language,
+    // so the profile is an unreliable signal for "what language do they want now".
+    // Prefer the body; fall back to the profile only if it's missing/invalid.
+    let requestedLang: Lang | null = null;
+    try {
+      const body = (await request.json()) as { language?: string };
+      if (body.language === "en" || body.language === "es") requestedLang = body.language;
+    } catch {
+      // No/invalid JSON body — fall back to the profile preference below.
+    }
+
     const supabase = await createSupabaseServerClient();
     const {
       data: { user },
@@ -134,12 +146,14 @@ export async function POST() {
       return NextResponse.json({ error: "not_enough_entries" }, { status: 422 });
     }
 
+    // Fallback only: stored profile preference (set on the Profile screen).
     const { data: profile } = await supabase
       .from("profiles")
       .select("preferred_language")
       .eq("id", user.id)
       .maybeSingle();
-    const lang: Lang = profile?.preferred_language === "es" ? "es" : "en";
+    const profileLang: Lang = profile?.preferred_language === "es" ? "es" : "en";
+    const lang: Lang = requestedLang ?? profileLang;
     const languageName = lang === "es" ? "Spanish" : "English";
 
     // Document context — COUNT + types only, never contents.
