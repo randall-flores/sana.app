@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { computeOverview } from "@/lib/journalStats";
-import { labelFor } from "@/components/journal/BodyPainMap";
+import { labelFor } from "@/lib/regionLabels";
 
 // AI recovery summary. Server-only: the Anthropic key never reaches the browser,
 // so every generate/regenerate POSTs here. Result is cached in case_summaries so
