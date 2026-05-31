@@ -50,3 +50,6 @@ next-env.d.ts
 # claude code harness
 .claude/
 *claude-notify-signals*
+
+# Personal local Claude config
+.claude/settings.local.json
