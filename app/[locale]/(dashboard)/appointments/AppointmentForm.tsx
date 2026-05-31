@@ -150,9 +150,10 @@ function FormBody({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            {/* min-w-0 so native date/time controls shrink to the grid track
-                instead of forcing it wider and overlapping at 375px. */}
+          {/* Stack on phones — native date/time controls need ~150px each and
+              crowd/overlap two-up at 375px. Side-by-side only from sm: where
+              there's room. min-w-0 keeps them inside the track. */}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="min-w-0 space-y-2">
               <Label htmlFor="appt-date">{t("dateLabel")}</Label>
               <Input
