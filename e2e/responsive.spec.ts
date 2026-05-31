@@ -59,12 +59,14 @@ test("375 — appointment form: date and time inputs do not overlap", async ({ p
   expect(d, "date input has a box").not.toBeNull();
   expect(t, "time input has a box").not.toBeNull();
 
-  // Date sits left of time with no horizontal overlap (2px tolerance).
-  expect(d!.x + d!.width, `date.right ${d!.x + d!.width} <= time.left ${t!.x}`).toBeLessThanOrEqual(
-    t!.x + 2,
+  // At 375px the pair stacks (grid-cols-1) — time sits BELOW date, no vertical
+  // overlap. Native date/time controls are too wide to sit two-up here.
+  expect(t!.y, `time.top ${t!.y} >= date.bottom ${d!.y + d!.height}`).toBeGreaterThanOrEqual(
+    d!.y + d!.height - 2,
   );
-  // Both stay within the dialog (no clipping past the right edge).
+  // Neither input clips past the dialog's right edge.
   const dialog = await page.getByRole("dialog").boundingBox();
+  expect(d!.x + d!.width).toBeLessThanOrEqual(dialog!.x + dialog!.width + 1);
   expect(t!.x + t!.width).toBeLessThanOrEqual(dialog!.x + dialog!.width + 1);
 
   await page.screenshot({ path: "e2e/shot-appt-form-375.png" });
