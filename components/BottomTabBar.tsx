@@ -1,12 +1,13 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { FileText, NotebookPen, Scale, User } from "lucide-react";
+import { CalendarDays, FileText, NotebookPen, Scale, User } from "lucide-react";
 import { Link, usePathname } from "@/lib/i18n/navigation";
 import { cn } from "@/lib/utils";
 
 const tabs = [
   { href: "/journal", labelKey: "journal", icon: NotebookPen },
+  { href: "/appointments", labelKey: "appointments", icon: CalendarDays },
   { href: "/documents", labelKey: "documents", icon: FileText },
   { href: "/case-status", labelKey: "caseStatus", icon: Scale },
   { href: "/profile", labelKey: "profile", icon: User },

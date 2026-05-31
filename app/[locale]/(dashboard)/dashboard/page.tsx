@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BottomTabBar } from "@/components/BottomTabBar";
 import { cn } from "@/lib/utils";
 import { RecoverySummaryCard, type SummaryData } from "./RecoverySummaryCard";
+import { NextAppointmentCard, type NextAppointment } from "./NextAppointmentCard";
 
 export default async function DashboardPage({
   params,
@@ -39,6 +40,7 @@ export default async function DashboardPage({
 
   let entryCount = 0;
   let summary: SummaryData | null = null;
+  let nextAppt: NextAppointment | null = null;
   if (caseRow) {
     const { count } = await supabase
       .from("journal_entries")
@@ -52,6 +54,18 @@ export default async function DashboardPage({
       .eq("case_id", caseRow.id)
       .maybeSingle();
     summary = (summaryRow as SummaryData | null) ?? null;
+
+    // Single nearest upcoming appointment. UTC instant comparison (gte now) is
+    // timezone-independent; the friendly label is rendered client-side.
+    const { data: apptRow } = await supabase
+      .from("appointments")
+      .select("id, title, appt_at, appt_type")
+      .eq("case_id", caseRow.id)
+      .gte("appt_at", new Date().toISOString())
+      .order("appt_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    nextAppt = (apptRow as NextAppointment | null) ?? null;
   }
 
   const t = await getTranslations("dashboard");
@@ -102,6 +116,8 @@ export default async function DashboardPage({
             );
           })}
         </div>
+
+        {caseRow && <NextAppointmentCard next={nextAppt} />}
 
         {caseRow && (
           <RecoverySummaryCard initialSummary={summary} entryCount={entryCount} />
