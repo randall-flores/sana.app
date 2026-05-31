@@ -395,6 +395,9 @@ export function JournalList({ entries }: { entries: JournalRow[] }) {
     () => true,
     () => false,
   );
+  // Capture "now" once at mount — Date.now() in render is impure (React Compiler).
+  // The "this week" cutoff only matters post-mount, so a mount-time value is fine.
+  const [nowMs] = useState(() => Date.now());
 
   const areaLabel = (loc: string) =>
     loc in REGION_LABELS ? labelFor(loc, locale) : t(`locations.${loc}`);
@@ -410,7 +413,7 @@ export function JournalList({ entries }: { entries: JournalRow[] }) {
   const filtered = useMemo(() => {
     if (filter === "severe") return entries.filter((e) => e.pain_level >= 7);
     if (filter === "week") {
-      const cut = Date.now() - 7 * 86_400_000;
+      const cut = nowMs - 7 * 86_400_000;
       return entries.filter((e) => new Date(e.created_at).getTime() >= cut);
     }
     if (filter === "area" && areaFilter)
@@ -424,7 +427,7 @@ export function JournalList({ entries }: { entries: JournalRow[] }) {
       });
     }
     return entries;
-  }, [entries, filter, areaFilter, appliedRange]);
+  }, [entries, filter, areaFilter, appliedRange, nowMs]);
 
   const view = useMemo(() => {
     const groups = new Map<string, JournalRow[]>();
