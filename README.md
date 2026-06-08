@@ -1,31 +1,40 @@
-# Sana — Phase 1 Scaffold
+# Sana
 
-Sana is a calm, bilingual (English + Spanish) companion app for people who just got injured in an accident. It helps them track their injury, their bills, and their case — in plain language, on their phone.
+A calm, bilingual companion that helps people document and track their accident, injuries, and recovery.
 
-This repository contains the **Phase 1 scaffold**: Next.js 16 App Router, locale-prefixed routing, Supabase auth, an onboarding wizard, and an empty dashboard. Journal, Document Vault, and AI Coach features come in Phase 2.
+## Overview
 
-## Tech stack
+Sana is a personal-injury companion app for people who were recently hurt in an accident and need to keep a clear record of what happened and how they are healing. It guides them through documenting their accident, logging daily pain and mood, marking where it hurts on an interactive body map, storing photos and PDFs, and tracking medical appointments, then turns that journal into a plain-language recovery summary. The interface is fully bilingual (English and Spanish) and every record is private to the person who created it.
+
+## Tech Stack
 
 - **Next.js 16** (App Router, TypeScript strict mode)
-- **Tailwind CSS** + **shadcn/ui**
-- **Supabase** for auth, Postgres, and Storage (via `@supabase/ssr`)
-- **next-intl** for English/Spanish routing and copy
-- **react-hook-form** + **zod** for form validation
-- **Lucide React** for icons
+- **Tailwind CSS** with **shadcn/ui** (Radix primitives)
+- **next-intl** for English/Spanish internationalization and locale-prefixed routing
+- **Supabase** for authentication and Postgres with row-level security, plus Storage for document uploads (`@supabase/ssr`)
+- **Claude API** (Anthropic) for the recovery summary, called from a server-only route
+- **react-hook-form** + **Zod** for form validation
+- **@react-pdf/renderer** for exportable journal reports
 - Deployed to **Vercel**
 
-## Project structure
+## Key Features
 
-```
-app/                # Next.js App Router (locale-prefixed)
-components/         # UI primitives, layout, onboarding
-lib/                # supabase clients, i18n helpers, validation schemas
-messages/           # en.json, es.json
-supabase/           # SQL migrations (schema + RLS)
-middleware.ts       # next-intl + Supabase session refresh
-```
+- **Bilingual EN/ES** throughout, with locale-prefixed URLs and a language toggle that never mixes copy.
+- **Accident and injury documentation** via a guided onboarding wizard and a daily journal capturing pain level, mood, locations, and free-text notes.
+- **Interactive body map** for marking pain locations on a front/back human figure, rendered in plain-language labels in both languages.
+- **AI recovery summary** that distills the journal into a short, warm, plain-language recap.
+- **Document vault** for photos and PDFs (medical records, bills) with client-side image compression.
+- **Appointment tracking** and a dashboard that surfaces the next appointment and latest recovery summary.
+- **Secure per-user data** so each person sees only their own records.
 
-## Getting started
+## Tech Highlights
+
+- **Row-level security as the real access control.** Auth runs through Supabase, and every table is protected by Postgres RLS policies keyed to the authenticated user, so a user can only read and write their own case, journal entries, documents, and summaries. The server clients use the public anon key and inherit the user's session; the privileged service-role key is never used in app code and never reaches the browser.
+- **Server-only Claude summary endpoint.** The recovery summary lives at `app/api/summary/route.ts` (Node runtime). The Anthropic key is read from the server environment and never shipped to the client, raw model errors are never leaked back, the model is only called once the user has at least three journal entries, and results are cached in a `case_summaries` table so the dashboard does not re-call the model on every view. The model receives structured stats with verbatim notes, never document contents.
+- **next-intl bilingual routing.** Routing is locale-prefixed (`always`) for `en` and `es`, and all user-facing copy lives in `messages/en.json` and `messages/es.json`. Region and mood labels live in a framework-neutral, dependency-free module so the same bilingual labels can be imported from both client components and the server summary route without tripping the "use client" boundary.
+- **Body map built on a shared geometry/label core.** The `BodyPainMap` component, the journal list, and the PDF report all draw from the same region-label source and pain-severity color logic (`lib/pain.ts`), keeping the slider, badges, and figure consistent across the app.
+
+## Running Locally
 
 ### 1. Install dependencies
 
@@ -33,46 +42,38 @@ middleware.ts       # next-intl + Supabase session refresh
 npm install
 ```
 
-### 2. Set up Supabase
+### 2. Configure environment
 
-1. Create a Supabase project at [supabase.com](https://supabase.com).
-2. From **Project Settings → API**, copy your project URL, anon key, and service role key.
-3. Copy `.env.local.example` to `.env.local` and fill the values:
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=...
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-   SUPABASE_SERVICE_ROLE_KEY=...
-   ```
-4. Run the migrations under **SQL Editor** in the order listed:
-   - `supabase/migrations/20260518000001_initial_schema.sql`
-   - `supabase/migrations/20260518000002_rls_policies.sql`
-   - `supabase/migrations/20260518000003_handle_new_user.sql`
+Copy `.env.local.example` to `.env.local` and fill in your own values:
 
-### 3. Run the app
-
-```bash
-npm run dev
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+ANTHROPIC_API_KEY=your-anthropic-api-key
 ```
 
-Open <http://localhost:3000>. The app redirects to `/en` (or `/es` based on browser language).
+`NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are public by design (the anon key is gated by row-level security). `ANTHROPIC_API_KEY` is server-only and must never be prefixed with `NEXT_PUBLIC_`.
 
-## Deploying to Vercel
+### 3. Set up the database
 
-1. Push this repo to GitHub.
-2. In Vercel, **Import Project** from the repo.
-3. Add the three environment variables from `.env.local` to the Vercel project.
-4. Deploy. Vercel will auto-detect Next.js and build with the default settings.
+Create a Supabase project, then run the migrations in `supabase/migrations/` in filename order from the SQL editor (or via the Supabase CLI). They create the schema, the RLS policies, the new-user trigger, and the documents storage bucket.
 
-## Adding translations
+### 4. Run the app
 
-Every user-facing string lives in `messages/en.json` and `messages/es.json`. Never hardcode copy in components. Add new keys to both files and use `useTranslations("namespace")` (client) or `getTranslations` (server).
+```bash
+npm run dev        # start the dev server at http://localhost:3000
+npm run dev:clean  # same, after clearing the .next cache
+npm run build      # production build
+npm run lint       # ESLint
+```
 
-## What's intentionally not here yet
+Open <http://localhost:3000>. The app redirects to `/en` or `/es` based on the request locale.
 
-- Journal feature
-- Document Vault (photo / PDF uploads)
-- AI Coach
-- Email magic links / OAuth providers
-- Push notifications
+### Sample data
 
-These ship in Phase 2.
+The repository contains no real user data. The only sample records come from the synthetic end-to-end seed scripts in `e2e/` (for example, a `QA Bodymap` test user and a fabricated `car` accident), used to seed throwaway accounts for Playwright tests via the service role.
+
+## Links
+
+- **Live demo:** _coming soon_
+- **Case study:** https://randall-portfolio-six.vercel.app/work/sana
